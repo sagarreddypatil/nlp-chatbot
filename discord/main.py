@@ -3,7 +3,7 @@ import argparse
 import shlex
 from dotenv import load_dotenv
 import os
-from chatbot.chatbot import Conversation, Chatbot
+from chatbot.chatbot import ChatbotMessage, Conversation, Chatbot, BruhChatbot
 from chatbot import gpt2
 
 load_dotenv()
@@ -37,13 +37,16 @@ parser.add_argument("-t", "--history", help="Show conversation history", action=
 
 
 class NLPChatbot(discord.Client):
-    async def on_ready(self):
-        print(f"Logged in as {self.user}")
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
-        self.model: Chatbot = gpt2.GPT2(gpt2.betterSettings)
+        # self.model: Chatbot = gpt2.GPT2(gpt2.betterSettings)
+        self.model: Chatbot = BruhChatbot(name=name, description=description)
 
         print("Model Loaded")
+
+    async def on_ready(self):
+        print(f"Logged in as {self.user}")
 
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
@@ -57,20 +60,31 @@ class NLPChatbot(discord.Client):
         content: str = message.content
 
         if content.startswith(cmd_text):
-            self.handle_cmd(message)
+            await self.handle_cmd(message)
             return
 
+        convo = self.convos[message.channel.id]
+        convo.add_message(
+            ChatbotMessage(sender=message.author.display_name, message=message.content)
+        )
         if name.lower() in content.lower():
-            self.handle_chat(message)
+            await self.handle_chat(message)
             return
 
-    def handle_cmd(self, message: discord.Message):
+    async def handle_chat(self, message: discord.Message):
+        convo = self.convos[message.channel.id]
+        channel: discord.TextChannel = message.channel
+        async with channel.typing():
+            response = self.model.generate_response(convo)
+            await channel.send(response)
+
+    async def handle_cmd(self, message: discord.Message):
         content = shlex.split(message.content)[1:]
         try:
             args = parser.parse_args(content)
         except EarlyExit as e:
-            message.channel.send(
-                self.create_embed(
+            await message.channel.send(
+                embed=self.create_embed(
                     message.author,
                     title="Help",
                     description=e.message,
@@ -83,8 +97,8 @@ class NLPChatbot(discord.Client):
             convo.reset()
             self.model.init_conversation(convo)
 
-            message.channel.send(
-                self.create_embed(
+            await message.channel.send(
+                embed=self.create_embed(
                     message.author,
                     title="Reset",
                     description="Conversation history has been reset.",
@@ -92,19 +106,21 @@ class NLPChatbot(discord.Client):
             )
 
         if args.gaslight:
-            convo.queue[-1].message = args.gaslight
+            old_msg: ChatbotMessage = convo.queue[-1]
+            new_msg = ChatbotMessage(old_msg.sender, args.gaslight)
+            convo.queue[-1] = new_msg
 
         if args.gaslight or args.history:
-            message.channel.send(
-                self.create_embed(
+            await message.channel.send(
+                embed=self.create_embed(
                     message.author,
                     title=f"{'Gaslit ' if args.gaslight else ''}History",
-                    description=convo.get_history(),
-                    footer=f"The model can only remember approximately the last {self.model.model_max_length} words.",
+                    description=convo.summary(),
+                    footer=f"The model can only remember approximately the last {self.model.model_max_length()} words.",
                 )
             )
 
-    def create_embed(author, title: str, description: str, footer=None) -> discord.Embed:
+    def create_embed(self, author, title: str, description: str, footer=None) -> discord.Embed:
         embed = discord.Embed(
             title=title, description=description, footer=footer, color=discord.Color.blue()
         )
@@ -114,3 +130,9 @@ class NLPChatbot(discord.Client):
             embed.set_footer(text=footer)
 
         return embed
+
+
+intents = discord.Intents.default()
+intents.messages = True
+client = NLPChatbot(intents=intents)
+client.run(key)

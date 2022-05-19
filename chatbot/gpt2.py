@@ -31,15 +31,18 @@ class GPT2Large(Chatbot):
 
         self.eos = self.tokenizer.encode("\n")[0]
 
-    def _generate_model_input(self) -> str:
-        base = super()._generate_model_input()
+    def model_max_length(self) -> str:
+        return str(self.tokenizer.model_max_length)
+
+    def _generate_model_input(self, convo: Conversation) -> str:
+        base = super()._generate_model_input(convo)
         return base.replace(": ", ":")
 
-    def _generate(self) -> str:
-        input_text = self._generate_model_input() + f"{self.name}: "
+    def _generate(self, convo: Conversation) -> str:
+        input_text = self._generate_model_input(convo) + f"{self.name}: "
         while len(self.tokenizer.encode(input_text)) >= self.tokenizer.model_max_length:
-            self.do_fifo()
-            input_text = self._generate_model_input() + f"{self.name}: "
+            convo.do_fifo()
+            input_text = self._generate_model_input(convo) + f"{self.name}: "
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
         outputs = self.model.generate(
