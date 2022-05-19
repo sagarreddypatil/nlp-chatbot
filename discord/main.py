@@ -41,7 +41,9 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         # self.model: Chatbot = gpt2.GPT2(gpt2.betterSettings)
-        self.model: Chatbot = BruhChatbot(name=name, description=description)
+        self.model: Chatbot = gpt2.GPT2Large(
+            name=name, description=description, settings=gpt2.betterSettings
+        )
 
         print("Model Loaded")
 
@@ -67,7 +69,10 @@ class NLPChatbot(discord.Client):
         convo.add_message(
             ChatbotMessage(sender=message.author.display_name, message=message.content)
         )
-        if name.lower() in content.lower():
+        # check if message is reply to me
+        respond = name.lower() in message.content.lower()
+        respond = respond or self.user.mentioned_in(message)
+        if respond:
             await self.handle_chat(message)
             return
 
