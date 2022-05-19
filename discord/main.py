@@ -81,7 +81,7 @@ class NLPChatbot(discord.Client):
         channel: discord.TextChannel = message.channel
         async with channel.typing():
             response = self.model.generate_response(convo)
-            await channel.send(response)
+        await channel.send(response)
 
     async def handle_cmd(self, message: discord.Message):
         content = shlex.split(message.content)[1:]
