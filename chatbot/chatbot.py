@@ -17,6 +17,15 @@ class Conversation(object):
     def add_message(self, message: ChatbotMessage):
         self.queue.append(message)
 
+    def get_last_message(self, sender: str = None) -> ChatbotMessage:
+        if sender is None:
+            return self.queue[-1]
+
+        for i in range(len(self.queue) - 1, -1, -1):
+            if self.queue[i].sender == sender:
+                return i, self.queue[i]
+        
+
     def do_fifo(self):
         self.start_offset += 1
 
