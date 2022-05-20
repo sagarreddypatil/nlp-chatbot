@@ -77,7 +77,7 @@ class NLPChatbot(discord.Client):
 
         respond = name.lower() in message.content.lower()
         respond = respond or self.user.mentioned_in(message)
-        respond = respond or (len(message.mentions) == 0 and random() < 0.1)
+        respond = respond or (len(message.mentions) == 0 and random() < 0.05)
         respond = respond or (
             convo.queue[-2].sender == name and ("you" in message.content.lower() or random() < 0.33)
         )
