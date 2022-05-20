@@ -83,7 +83,7 @@ class NLPChatbot(discord.Client):
         )
 
         if respond:
-            num_responses = round(np.random.normal(loc=1.8, scale=0.7))
+            num_responses = np.random.poisson(0.25) + 1
             for i in range(num_responses):
                 await self.handle_chat(message)
             return
