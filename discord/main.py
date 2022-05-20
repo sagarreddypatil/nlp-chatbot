@@ -32,7 +32,9 @@ parser = ArgumentParser(prog=cmd_text, description=description)
 parser.add_argument(
     "-r", "--reset", help="Reset conversation history for this channel", action="store_true"
 )
-parser.add_argument("-g", "--gaslight", help="Change the last response from this bot", nargs="+", type=str)
+parser.add_argument(
+    "-g", "--gaslight", help="Change the last response from this bot", nargs="+", type=str
+)
 parser.add_argument("-t", "--history", help="Show conversation history", action="store_true")
 
 
@@ -40,10 +42,10 @@ class NLPChatbot(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
-        # self.model: Chatbot = gpt2.GPT2Large(
-        #     name=name, description=description, settings=gpt2.betterSettings
-        # )
-        self.model: Chatbot = BruhChatbot(name=name, description=description)
+        self.model: Chatbot = gpt2.GPT2Large(
+            name=name, description=description, settings=gpt2.betterSettings
+        )
+        # self.model: Chatbot = BruhChatbot(name=name, description=description)
 
         print("Model Loaded")
 
