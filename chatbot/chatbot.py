@@ -1,6 +1,7 @@
 from pydoc import describe
 from typing import NamedTuple
-
+from datetime import datetime
+import os
 
 class ChatbotMessage(NamedTuple):
     sender: str
@@ -8,21 +9,32 @@ class ChatbotMessage(NamedTuple):
 
 
 class Conversation(object):
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id
         self.queue: list(ChatbotMessage) = []
+        self.start_offset = 0
 
     def add_message(self, message: ChatbotMessage):
         self.queue.append(message)
 
     def do_fifo(self):
-        self.queue.pop(0)
+        self.start_offset += 1
 
     def reset(self):
+        if not os.path.isdir("chatdata"):
+            os.mkdir("chatdata")
+
+        uid = f"{self.id}_{datetime.now().isoformat()}"
+        with open(f"chatdata/{uid}.txt", "w") as f:
+            f.write(self.summary())
+
+
+        self.start_offset = 0
         self.queue = []
 
     def summary(self) -> str:
         out = ""
-        for message in self.queue:
+        for message in self.queue[self.start_offset:]:
             out += f"{message.sender}: {message.message}\n"
 
         return out
@@ -82,7 +94,7 @@ def test(**kwargs):
     chatbot = Chatbot.__subclasses__()[choice](
         name="Chatbot", description="""I am a chatbot.""", **kwargs
     )
-    conversation = Conversation()
+    conversation = Conversation("test")
     chatbot.init_conversation(conversation)
 
     print("Loaded Chatbot\n")
@@ -99,7 +111,8 @@ def test(**kwargs):
 
     print("\n\n============ Summary ============")
     # print(conversation.summary())
-    print(model._generate_model_input(conversation))
+    print(chatbot._generate_model_input(conversation))
+    conversation.reset()
 
 
 if __name__ == "__main__":

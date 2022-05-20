@@ -1,6 +1,4 @@
 #!/bin/bash
 
-source ./venv/bin/activate
-
-export TRANSFORMERS_CACHE=./models
+source ./envsetup.sh
 python3 -m discord.main

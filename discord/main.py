@@ -56,7 +56,8 @@ class NLPChatbot(discord.Client):
 
         channel_id: int = message.channel.id
         if channel_id not in self.convos:
-            self.convos[channel_id] = Conversation()
+            convo_id = f"{message.guild.id}_{message.channel.name}"
+            self.convos[channel_id] = Conversation(convo_id)
             self.model.init_conversation(self.convos[channel_id])
 
         content: str = message.content

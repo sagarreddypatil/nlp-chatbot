@@ -55,9 +55,9 @@ class GPT2Large(Chatbot):
         )
         output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-        print("\n==============================")
-        print(output)
-        print("==============================\n")
+        # print("\n==============================")
+        # print(output)
+        # print("==============================\n")
 
         output = output.split(f"{self.name}{self.seperator.strip()}")[-1].replace("\n", "").strip()
 
