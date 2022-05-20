@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 import os
 from chatbot.chatbot import ChatbotMessage, Conversation, Chatbot, BruhChatbot
 from chatbot import gpt2
+from random import random
+import numpy as np
 
 load_dotenv()
 
@@ -72,11 +74,18 @@ class NLPChatbot(discord.Client):
         convo.add_message(
             ChatbotMessage(sender=message.author.display_name, message=message.content)
         )
-        # check if message is reply to me
+
         respond = name.lower() in message.content.lower()
         respond = respond or self.user.mentioned_in(message)
+        respond = respond or (len(message.mentions) == 0 and random() < 0.1)
+        respond = respond or (
+            convo.queue[-2].sender == name and ("you" in message.content.lower() or random() < 0.33)
+        )
+
         if respond:
-            await self.handle_chat(message)
+            num_responses = round(np.random.normal(loc=1.8, scale=0.7))
+            for i in range(num_responses):
+                await self.handle_chat(message)
             return
 
     async def handle_chat(self, message: discord.Message):
