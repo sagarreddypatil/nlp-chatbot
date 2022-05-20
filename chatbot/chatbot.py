@@ -33,6 +33,7 @@ class Chatbot(object):
         self.name = name
         self.description = description
         self.force_cpu = force_cpu
+        self.seperator = ": "
 
         self._init_model(**kwargs)
 
@@ -56,7 +57,7 @@ class Chatbot(object):
     def _generate_model_input(self, convo: Conversation) -> str:
         out = ""
         for message in convo.queue:
-            out += f"{message.sender}: {message.message}\n"
+            out += f"{message.sender}{self.seperator}{message.message}\n"
 
         return out
 
@@ -90,7 +91,6 @@ def test(**kwargs):
     while True:
         try:
             message = input(f"{name}: ")
-            message = message.strip()
             conversation.add_message(ChatbotMessage(name, message))
             response = chatbot.generate_response(conversation)
             print(f"{chatbot.name}: {response}")
@@ -98,7 +98,8 @@ def test(**kwargs):
             break
 
     print("\n\n============ Summary ============")
-    print(conversation.summary())
+    # print(conversation.summary())
+    print(model._generate_model_input(conversation))
 
 
 if __name__ == "__main__":
