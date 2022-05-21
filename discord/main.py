@@ -67,22 +67,20 @@ class NLPChatbot(discord.Client):
             self.convos[channel_id] = Conversation(convo_id)
             self.model.init_conversation(self.convos[channel_id])
 
-        content: str = message.content
+        content: str = message.clean_content
 
         if content.startswith(cmd_text):
             await self.handle_cmd(message)
             return
 
         convo = self.convos[message.channel.id]
-        convo.add_message(
-            ChatbotMessage(sender=message.author.display_name, message=message.content)
-        )
+        convo.add_message(ChatbotMessage(sender=message.author.display_name, message=content))
 
-        respond = name.lower() in message.content.lower()
+        respond = name.lower() in content.lower()
         respond = respond or self.user.mentioned_in(message)
         respond = respond or (len(message.mentions) == 0 and random() < 0.05)
         respond = respond or (
-            convo.queue[-2].sender == name and ("you" in message.content.lower() or random() < 0.33)
+            convo.queue[-2].sender == name and ("you" in content.lower() or random() < 0.33)
         )
 
         if respond:
@@ -113,7 +111,7 @@ class NLPChatbot(discord.Client):
             )
 
     async def handle_cmd(self, message: discord.Message):
-        content = shlex.split(message.content)[1:]
+        content = shlex.split(message.clean_content)[1:]
         try:
             args = parser.parse_args(content)
         except EarlyExit as e:
@@ -165,6 +163,12 @@ class NLPChatbot(discord.Client):
             embed.set_footer(text=footer)
 
         return embed
+
+    async def close(self):
+        for convo in self.convos.values():
+            convo.dump()
+
+        await super().close()
 
 
 if __name__ == "__main__":
