@@ -12,22 +12,27 @@ class ChatbotMessage(NamedTuple):
 class Conversation(object):
     def __init__(self, id):
         self.id = id
-        self.queue: list(ChatbotMessage) = []
+        self.__queue: list(ChatbotMessage) = []
         self.start_offset = 0
 
     def add_message(self, message: ChatbotMessage):
-        self.queue.append(message)
+        self.__queue.append(message)
 
     def get_last_message(self, sender: str = None) -> ChatbotMessage:
         if sender is None:
-            return self.queue[-1]
+            return self.__queue[-1]
 
-        for i in range(len(self.queue) - 1, -1, -1):
-            if self.queue[i].sender == sender:
-                return i, self.queue[i]
+        for i in range(len(self.__queue) - 1, -1, -1):
+            if self.__queue[i].sender == sender:
+                return i, self.__queue[i]
 
     def do_fifo(self):
         self.start_offset += 1
+
+    def get_queue(self):
+        return self.__queue[self.start_offset :]
+
+    queue = property(fget=get_queue)
 
     def reset(self):
         if not os.path.isdir("chatdata"):
@@ -38,11 +43,11 @@ class Conversation(object):
             f.write(self.summary())
 
         self.start_offset = 0
-        self.queue = []
+        self.__queue = []
 
     def summary(self) -> str:
         out = ""
-        for message in self.queue[self.start_offset :]:
+        for message in self.__queue[self.start_offset :]:
             out += f"{message.sender}: {message.message}\n"
 
         return out

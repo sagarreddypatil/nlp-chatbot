@@ -1,5 +1,5 @@
 import torch
-from transformers import GPT2LMHeadModel, GPT2TokenizerFast
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from .chatbot import *
 
 
@@ -12,24 +12,32 @@ class GPT2Settings(NamedTuple):
 
 
 crackheadSettings = GPT2Settings(
-    model_name="gpt2-large", temperature=0.7, top_p=0.9, top_k=None, repetition_penalty=2.0
+    model_name="distilgpt2", temperature=0.7, top_p=0.9, top_k=None, repetition_penalty=2.0
 )
 
 betterSettings = GPT2Settings(
     model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
+idkSettings = GPT2Settings(
+    model_name="distilgpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
+)
+
+bigBrainSettings = GPT2Settings(
+    model_name="gpt2-xl", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
+)
+
 
 # Sike it's actually distilgpt2
 class GPT2(Chatbot):
-    def _init_model(self, settings: GPT2Settings = betterSettings):
+    def _init_model(self, settings: GPT2Settings):
         self.settings = settings
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() and not self.force_cpu else "cpu"
         )
 
-        self.model = GPT2LMHeadModel.from_pretrained(settings.model_name).to(self.device)
-        self.tokenizer = GPT2TokenizerFast.from_pretrained(settings.model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(settings.model_name).to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
         self.model.eval()
 
         self.eos = self.tokenizer.encode("\n")[0]
@@ -64,7 +72,7 @@ class GPT2(Chatbot):
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
         outputs = self.model.generate(
             input_ids.to(self.device),
-            max_length=self.tokenizer.model_max_length,
+            max_length=len(input_ids) + 100,
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,

@@ -1,18 +1,20 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+os.environ["TRANSFORMERS_CACHE"] = "./models"
+
 import discord
 import argparse
 import shlex
-from dotenv import load_dotenv
-import os
 from chatbot.chatbot import ChatbotMessage, Conversation, Chatbot, BruhChatbot
 from chatbot import gpt2
 from random import random
 import numpy as np
 
-load_dotenv()
 
 name = "AMOGUS"
 description = """I like finding who is sus"""
-key = os.getenv("DISCORD_KEY")
 
 cmd_text = f"{name.lower()}-cmd"
 
@@ -45,7 +47,7 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         self.model: Chatbot = gpt2.GPT2(
-            name=name, description=description, settings=gpt2.betterSettings
+            name=name, description=description, settings=gpt2.idkSettings
         )
         # self.model: Chatbot = BruhChatbot(name=name, description=description)
 
@@ -153,4 +155,6 @@ class NLPChatbot(discord.Client):
 intents = discord.Intents.default()
 intents.messages = True
 client = NLPChatbot(intents=intents)
+
+key = os.getenv("DISCORD_KEY")
 client.run(key)
