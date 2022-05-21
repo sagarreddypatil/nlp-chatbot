@@ -3,30 +3,33 @@ from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 from .chatbot import *
 
 
-class GPT2LargeSettings(NamedTuple):
+class GPT2Settings(NamedTuple):
+    model_name: str
     temperature: float
     top_p: float
     top_k: int
     repetition_penalty: float
 
 
-crackheadSettings = GPT2LargeSettings(
-    temperature=0.7, top_p=0.9, top_k=None, repetition_penalty=2.0
+crackheadSettings = GPT2Settings(
+    model_name="gpt2-large", temperature=0.7, top_p=0.9, top_k=None, repetition_penalty=2.0
 )
 
-betterSettings = GPT2LargeSettings(temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33)
+betterSettings = GPT2Settings(
+    model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
+)
 
 
 # Sike it's actually distilgpt2
-class GPT2Large(Chatbot):
-    def _init_model(self, settings: GPT2LargeSettings = betterSettings):
+class GPT2(Chatbot):
+    def _init_model(self, settings: GPT2Settings = betterSettings):
         self.settings = settings
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() and not self.force_cpu else "cpu"
         )
 
-        self.model = GPT2LMHeadModel.from_pretrained("gpt2-large").to(self.device)
-        self.tokenizer = GPT2TokenizerFast.from_pretrained("gpt2-large")
+        self.model = GPT2LMHeadModel.from_pretrained(settings.model_name).to(self.device)
+        self.tokenizer = GPT2TokenizerFast.from_pretrained(settings.model_name)
         self.model.eval()
 
         self.eos = self.tokenizer.encode("\n")[0]

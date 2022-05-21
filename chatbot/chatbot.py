@@ -3,6 +3,7 @@ from typing import NamedTuple
 from datetime import datetime
 import os
 
+
 class ChatbotMessage(NamedTuple):
     sender: str
     message: str
@@ -24,7 +25,6 @@ class Conversation(object):
         for i in range(len(self.queue) - 1, -1, -1):
             if self.queue[i].sender == sender:
                 return i, self.queue[i]
-        
 
     def do_fifo(self):
         self.start_offset += 1
@@ -37,13 +37,12 @@ class Conversation(object):
         with open(f"chatdata/{uid}.txt", "w") as f:
             f.write(self.summary())
 
-
         self.start_offset = 0
         self.queue = []
 
     def summary(self) -> str:
         out = ""
-        for message in self.queue[self.start_offset:]:
+        for message in self.queue[self.start_offset :]:
             out += f"{message.sender}: {message.message}\n"
 
         return out
