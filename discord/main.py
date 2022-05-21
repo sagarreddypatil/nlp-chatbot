@@ -103,7 +103,7 @@ class NLPChatbot(discord.Client):
                 traceback.print_exc()
                 err = True
 
-        if err:
+        if not err:
             await channel.send(response)
         else:
             await channel.send(
