@@ -1,6 +1,6 @@
-#!/bin/bash
+#/bin/bash
 
-source ./venv/bin/activate
+source ./envsetup.sh
 
-export TRANSFORMERS_CACHE=./models
-python3 -m discord.main
+date >> log.txt
+python3 -m discord.main &>> log.txt

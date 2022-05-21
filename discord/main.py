@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 import os
 from chatbot.chatbot import ChatbotMessage, Conversation, Chatbot, BruhChatbot
 from chatbot import gpt2
+from random import random
+import numpy as np
 
 load_dotenv()
 
@@ -32,7 +34,9 @@ parser = ArgumentParser(prog=cmd_text, description=description)
 parser.add_argument(
     "-r", "--reset", help="Reset conversation history for this channel", action="store_true"
 )
-parser.add_argument("-g", "--gaslight", help="Change the last response from this bot", type=str)
+parser.add_argument(
+    "-g", "--gaslight", help="Change the last response from this bot", nargs="+", type=str
+)
 parser.add_argument("-t", "--history", help="Show conversation history", action="store_true")
 
 
@@ -40,10 +44,10 @@ class NLPChatbot(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
-        # self.model: Chatbot = gpt2.GPT2(gpt2.betterSettings)
         self.model: Chatbot = gpt2.GPT2Large(
             name=name, description=description, settings=gpt2.betterSettings
         )
+        # self.model: Chatbot = BruhChatbot(name=name, description=description)
 
         print("Model Loaded")
 
@@ -56,7 +60,8 @@ class NLPChatbot(discord.Client):
 
         channel_id: int = message.channel.id
         if channel_id not in self.convos:
-            self.convos[channel_id] = Conversation()
+            convo_id = f"{message.guild.id}_{message.channel.name}"
+            self.convos[channel_id] = Conversation(convo_id)
             self.model.init_conversation(self.convos[channel_id])
 
         content: str = message.content
@@ -69,11 +74,18 @@ class NLPChatbot(discord.Client):
         convo.add_message(
             ChatbotMessage(sender=message.author.display_name, message=message.content)
         )
-        # check if message is reply to me
+
         respond = name.lower() in message.content.lower()
         respond = respond or self.user.mentioned_in(message)
+        respond = respond or (len(message.mentions) == 0 and random() < 0.05)
+        respond = respond or (
+            convo.queue[-2].sender == name and ("you" in message.content.lower() or random() < 0.33)
+        )
+
         if respond:
-            await self.handle_chat(message)
+            num_responses = np.random.poisson(0.25) + 1
+            for i in range(num_responses):
+                await self.handle_chat(message)
             return
 
     async def handle_chat(self, message: discord.Message):
@@ -81,7 +93,7 @@ class NLPChatbot(discord.Client):
         channel: discord.TextChannel = message.channel
         async with channel.typing():
             response = self.model.generate_response(convo)
-        await channel.send(response)
+            await channel.send(response)
 
     async def handle_cmd(self, message: discord.Message):
         content = shlex.split(message.content)[1:]
@@ -111,9 +123,10 @@ class NLPChatbot(discord.Client):
             )
 
         if args.gaslight:
-            old_msg: ChatbotMessage = convo.queue[-1]
-            new_msg = ChatbotMessage(old_msg.sender, args.gaslight)
-            convo.queue[-1] = new_msg
+            idx, old_msg = convo.get_last_message(sender=name)
+            if old_msg:
+                new_msg = ChatbotMessage(old_msg.sender, " ".join(args.gaslight))
+                convo.queue[idx] = new_msg
 
         if args.gaslight or args.history:
             await message.channel.send(
