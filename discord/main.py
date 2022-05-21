@@ -1,4 +1,6 @@
+from inspect import trace
 import os
+import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,7 +17,6 @@ import numpy as np
 
 name = "AMOGUS"
 description = """I like finding who is sus"""
-
 cmd_text = f"{name.lower()}-cmd"
 
 
@@ -47,7 +48,7 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         self.model: Chatbot = gpt2.GPT2(
-            name=name, description=description, settings=gpt2.idkSettings
+            name=name, description=description, settings=gpt2.betterSettings
         )
         # self.model: Chatbot = BruhChatbot(name=name, description=description)
 
@@ -93,9 +94,23 @@ class NLPChatbot(discord.Client):
     async def handle_chat(self, message: discord.Message):
         convo = self.convos[message.channel.id]
         channel: discord.TextChannel = message.channel
+
+        err = False
         async with channel.typing():
-            response = self.model.generate_response(convo)
+            try:
+                response = self.model.generate_response(convo)
+            except Exception:
+                traceback.print_exc()
+                err = True
+
+        if err:
             await channel.send(response)
+        else:
+            await channel.send(
+                embed=self.create_embed(
+                    self.user, title="Error", description="Internal error, better luck next message"
+                )
+            )
 
     async def handle_cmd(self, message: discord.Message):
         content = shlex.split(message.content)[1:]
@@ -152,9 +167,10 @@ class NLPChatbot(discord.Client):
         return embed
 
 
-intents = discord.Intents.default()
-intents.messages = True
-client = NLPChatbot(intents=intents)
+if __name__ == "__main__":
+    intents = discord.Intents.default()
+    intents.messages = True
+    client = NLPChatbot(intents=intents)
 
-key = os.getenv("DISCORD_KEY")
-client.run(key)
+    key = os.getenv("DISCORD_KEY")
+    client.run(key)
