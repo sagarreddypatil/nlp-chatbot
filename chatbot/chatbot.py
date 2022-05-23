@@ -5,7 +5,7 @@ import os
 
 import codecs
 
-with open("slurs-encoded.txt", "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "slurs-encoded.txt"), "r") as f:
     slurs = f.read().splitlines()
     slurs = map(lambda x: codecs.decode(x, "rot13"), slurs)
     slurs = list(slurs)
