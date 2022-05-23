@@ -1,4 +1,6 @@
+from inspect import trace
 import os
+import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,7 +17,6 @@ import numpy as np
 
 name = "AMOGUS"
 description = """I like finding who is sus"""
-
 cmd_text = f"{name.lower()}-cmd"
 
 
@@ -47,7 +48,7 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         self.model: Chatbot = gpt2.GPT2(
-            name=name, description=description, settings=gpt2.idkSettings
+            name=name, description=description, settings=gpt2.betterSettings
         )
         # self.model: Chatbot = BruhChatbot(name=name, description=description)
 
@@ -66,22 +67,21 @@ class NLPChatbot(discord.Client):
             self.convos[channel_id] = Conversation(convo_id)
             self.model.init_conversation(self.convos[channel_id])
 
-        content: str = message.content
+        content: str = message.clean_content
 
         if content.startswith(cmd_text):
             await self.handle_cmd(message)
             return
 
         convo = self.convos[message.channel.id]
-        convo.add_message(
-            ChatbotMessage(sender=message.author.display_name, message=message.content)
-        )
+        convo.add_message(ChatbotMessage(sender=message.author.display_name, message=content))
 
-        respond = name.lower() in message.content.lower()
+        respond = name.lower() in content.lower()
         respond = respond or self.user.mentioned_in(message)
-        respond = respond or (len(message.mentions) == 0 and random() < 0.05)
+        # respond = respond or (len(message.mentions) == 0 and random() < 0.05)
         respond = respond or (
-            convo.queue[-2].sender == name and ("you" in message.content.lower() or random() < 0.33)
+            convo.queue[-2].sender == name
+            and ("you" in content.lower() or "we" in content.lower() or (True and random() < 0.33))
         )
 
         if respond:
@@ -93,13 +93,27 @@ class NLPChatbot(discord.Client):
     async def handle_chat(self, message: discord.Message):
         convo = self.convos[message.channel.id]
         channel: discord.TextChannel = message.channel
+
+        err = False
         async with channel.typing():
-            response = self.model.generate_response(convo)
+            try:
+                response = self.model.generate_response(convo)
+            except Exception:
+                traceback.print_exc()
+                err = True
+
+        if not err:
             if response:
                 await channel.send(response)
+        else:
+            await channel.send(
+                embed=self.create_embed(
+                    self.user, title="Error", description="Internal error, better luck next message"
+                )
+            )
 
     async def handle_cmd(self, message: discord.Message):
-        content = shlex.split(message.content)[1:]
+        content = shlex.split(message.clean_content)[1:]
         try:
             args = parser.parse_args(content)
         except EarlyExit as e:
@@ -152,10 +166,17 @@ class NLPChatbot(discord.Client):
 
         return embed
 
+    async def close(self):
+        for convo in self.convos.values():
+            convo.dump()
 
-intents = discord.Intents.default()
-intents.messages = True
-client = NLPChatbot(intents=intents)
+        await super().close()
 
-key = os.getenv("DISCORD_KEY")
-client.run(key)
+
+if __name__ == "__main__":
+    intents = discord.Intents.default()
+    intents.messages = True
+    client = NLPChatbot(intents=intents)
+
+    key = os.getenv("DISCORD_KEY")
+    client.run(key)

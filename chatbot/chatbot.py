@@ -55,13 +55,16 @@ class Conversation(object):
 
     queue = property(fget=get_queue)
 
-    def reset(self):
+    def dump(self):
         if not os.path.isdir("chatdata"):
             os.mkdir("chatdata")
 
         uid = f"{self.id}_{datetime.now().isoformat()}"
         with open(f"chatdata/{uid}.txt", "w") as f:
             f.write(self.summary())
+
+    def reset(self):
+        self.dump()
 
         self.start_offset = 0
         self.__queue = []
