@@ -3,6 +3,27 @@ from typing import NamedTuple
 from datetime import datetime
 import os
 
+import codecs
+
+with open("slurs-encoded.txt", "r") as f:
+    slurs = f.read().splitlines()
+    slurs = map(lambda x: codecs.decode(x, "rot13"), slurs)
+    slurs = list(slurs)
+
+
+def has_slur(message: str):
+    message = "".join(filter(lambda x: x.isalpha(), message))
+    message = message.lower()
+
+    for slur in slurs:
+        if slur in message:
+            return True
+        for word in message.split():
+            if slur in word:
+                return True
+
+    return False
+
 
 class ChatbotMessage(NamedTuple):
     sender: str
@@ -75,6 +96,9 @@ class Chatbot(object):
 
     def generate_response(self, convo: Conversation) -> str:
         response = self._generate(convo)
+        if has_slur(response):
+            return
+
         convo.add_message(ChatbotMessage(self.name, response))
 
         return response
