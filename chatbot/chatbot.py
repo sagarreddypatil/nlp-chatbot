@@ -100,6 +100,7 @@ class Chatbot(object):
     def generate_response(self, convo: Conversation) -> str:
         response = self._generate(convo)
         if has_slur(response):
+            print(f"Slur detected: {response}")
             return
 
         convo.add_message(ChatbotMessage(self.name, response))

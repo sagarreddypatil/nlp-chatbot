@@ -32,6 +32,14 @@ bigBrainSettings = GPT2Settings(
     repetition_penalty=1.33,
 )
 
+neoSettings = GPT2Settings(
+    model_name="EleutherAI/gpt-neo-1.3B",
+    temperature=0.9,
+    top_p=None,
+    top_k=None,
+    repetition_penalty=50.0,
+)
+
 
 # Sike it's actually distilgpt2
 class GPT2(Chatbot):
@@ -102,4 +110,4 @@ class GPT2(Chatbot):
 
 
 if __name__ == "__main__":
-    test(settings=betterSettings)
+    test(settings=neoSettings)
