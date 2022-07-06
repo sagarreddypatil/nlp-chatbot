@@ -54,7 +54,7 @@ class Conversation(object):
 
         uid = f"{self.id}_{datetime.now().isoformat()}"
         with open(f"chatdata/{uid}.txt", "w") as f:
-            f.write(self.summary())
+            f.write(self.summary(full=True))
 
     def reset(self):
         self.dump()
@@ -62,9 +62,11 @@ class Conversation(object):
         self.start_offset = 0
         self.__queue = []
 
-    def summary(self) -> str:
+    def summary(self, full=False) -> str:
         out = ""
-        for message in self.__queue[self.start_offset :]:
+        msgs = self.__queue if full else self.queue
+
+        for message in msgs:
             out += f"{message.sender}: {message.message}\n"
 
         return out
