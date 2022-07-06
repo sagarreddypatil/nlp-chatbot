@@ -2,6 +2,7 @@ from pydoc import describe
 from typing import NamedTuple
 from datetime import datetime
 import os
+import re
 
 import codecs
 
@@ -9,20 +10,12 @@ with open(os.path.join(os.path.dirname(__file__), "slurs-encoded.txt"), "r") as 
     slurs = f.read().splitlines()
     slurs = map(lambda x: codecs.decode(x, "rot13"), slurs)
     slurs = list(slurs)
+    slurs = "|".join(slurs)
+    slurs = re.compile(slurs)
 
 
 def has_slur(message: str):
-    message = "".join(filter(lambda x: x.isalpha(), message))
-    message = message.lower()
-
-    for slur in slurs:
-        if slur in message:
-            return True
-        for word in message.split():
-            if slur in word:
-                return True
-
-    return False
+    return slurs.search(message) is not None
 
 
 class ChatbotMessage(NamedTuple):
