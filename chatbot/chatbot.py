@@ -73,13 +73,12 @@ class Conversation(object):
 
 
 class Chatbot(object):
-    def __init__(self, name: str, description: str, force_cpu: bool = False, **kwargs):
+    def __init__(self, name: str, preamble: str, force_cpu: bool = False, **kwargs):
         self.name = name
-        self.description = description
         self.force_cpu = force_cpu
         self.seperator = ": "
 
-        self.preamble = f"{name} {description}"
+        self.preamble = preamble
 
         self._init_model(**kwargs)
 

@@ -16,7 +16,8 @@ import numpy as np
 
 
 name = "AMOGUS"
-description = """Likes finding who is sus"""
+preamble = """AMOGUS is a a creature of species AMOGUS. It is an omnipresent being with unthinkable powers."""
+description = """I like finding who is sus"""
 cmd_text = f"{name.lower()}-cmd"
 
 
@@ -47,9 +48,7 @@ class NLPChatbot(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
-        self.model: Chatbot = gpt2.GPT2(
-            name=name, description=description, settings=gpt2.betterSettings
-        )
+        self.model: Chatbot = gpt2.GPT2(name=name, preamble=preamble, settings=gpt2.betterSettings)
         # self.model: Chatbot = BruhChatbot(name=name, description=description)
 
         print("Model Loaded")
