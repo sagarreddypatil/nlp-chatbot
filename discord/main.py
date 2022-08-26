@@ -16,7 +16,7 @@ import numpy as np
 
 
 name = "AMOGUS"
-description = """I like finding who is sus"""
+description = """Likes finding who is sus"""
 cmd_text = f"{name.lower()}-cmd"
 
 
@@ -65,7 +65,6 @@ class NLPChatbot(discord.Client):
         if channel_id not in self.convos:
             convo_id = f"{message.guild.id}_{message.channel.name}"
             self.convos[channel_id] = Conversation(convo_id)
-            self.model.init_conversation(self.convos[channel_id])
 
         content: str = message.clean_content
 
@@ -129,7 +128,6 @@ class NLPChatbot(discord.Client):
         convo = self.convos[message.channel.id]
         if args.reset:
             convo.reset()
-            self.model.init_conversation(convo)
 
             await message.channel.send(
                 embed=self.create_embed(

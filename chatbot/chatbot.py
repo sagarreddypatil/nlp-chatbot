@@ -79,15 +79,12 @@ class Chatbot(object):
         self.force_cpu = force_cpu
         self.seperator = ": "
 
+        self.preamble = f"{name} {description}"
+
         self._init_model(**kwargs)
 
     def model_max_length(self) -> str:
         return "\u221e"
-
-    def init_conversation(self, convo: Conversation):
-        convo.add_message(ChatbotMessage(self.name, "Hello!"))
-        for line in self.description.split("\n"):
-            convo.add_message(ChatbotMessage(self.name, line))
 
     def _init_model(self, **kwargs):
         pass
@@ -103,7 +100,8 @@ class Chatbot(object):
         return response
 
     def _generate_model_input(self, convo: Conversation) -> str:
-        out = ""
+        out = self.preamble
+        out += "\n------------------------------\n"
         for message in convo.queue:
             out += f"{message.sender}{self.seperator}{message.message}\n"
 
@@ -131,7 +129,6 @@ def test(**kwargs):
         name="Chatbot", description="""I am a chatbot.""", **kwargs
     )
     conversation = Conversation("test")
-    chatbot.init_conversation(conversation)
 
     print("Loaded Chatbot\n")
     name = input("Enter your name: ")
