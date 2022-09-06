@@ -15,7 +15,7 @@ with open(os.path.join(os.path.dirname(__file__), "slurs-encoded.txt"), "r") as 
 
 
 def has_slur(message: str):
-    return slurs.search(message) is not None
+    return slurs.search(message.lower()) is not None
 
 
 class ChatbotMessage(NamedTuple):
