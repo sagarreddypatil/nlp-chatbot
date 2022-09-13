@@ -99,8 +99,7 @@ class Chatbot(object):
         return response
 
     def _generate_model_input(self, convo: Conversation) -> str:
-        out = self.preamble
-        out += "\n------------------------------\n"
+        out = self.preamble if self.preamble else ""
         for message in convo.queue:
             out += f"{message.sender}{self.seperator}{message.message}\n"
 
@@ -124,9 +123,7 @@ def test(**kwargs):
     while choice < 0 or choice > len(Chatbot.__subclasses__()):
         choice = int(input("Select a chatbot: "))
 
-    chatbot = Chatbot.__subclasses__()[choice](
-        name="Chatbot", description="""I am a chatbot.""", **kwargs
-    )
+    chatbot = Chatbot.__subclasses__()[choice](**kwargs)
     conversation = Conversation("test")
 
     print("Loaded Chatbot\n")
@@ -148,4 +145,4 @@ def test(**kwargs):
 
 
 if __name__ == "__main__":
-    test()
+    test(name="Bot")

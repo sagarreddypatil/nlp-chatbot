@@ -16,8 +16,8 @@ import numpy as np
 
 
 name = "AMOGUS"
-preamble = """The following is an excerpt from a Discord chat.
-AMOGUS is a a creature of species AMOGUS. It is an omnipresent being with unthinkable powers."""
+preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain. From that day forward, we are not suspicious Sus, but suspension Sus.
+AMOGUS: I am sus and you are sus. Defeat that stupid Ultimate Sus!"""
 
 description = """I like finding who is sus"""
 cmd_text = f"{name.lower()}-cmd"
