@@ -50,7 +50,7 @@ class NLPChatbot(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
-        self.model: Chatbot = gpt2.GPT2(name=name, preamble=preamble, settings=gpt2.betterSettings)
+        self.model: Chatbot = gpt2.GPT2(name=name, preamble=preamble, settings=gpt2.neoSettings)
         # self.model: Chatbot = BruhChatbot(name=name, description=description)
 
         print("Model Loaded")
