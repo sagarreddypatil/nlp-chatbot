@@ -99,7 +99,7 @@ class Chatbot(object):
         return response
 
     def _generate_model_input(self, convo: Conversation) -> str:
-        out = self.preamble if self.preamble else ""
+        out = self.preamble + "\n" if self.preamble else ""
         for message in convo.queue:
             out += f"{message.sender}{self.seperator}{message.message}\n"
 
