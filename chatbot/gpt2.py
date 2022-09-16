@@ -113,4 +113,4 @@ preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord A
 AMOGUS: I am sus and you are sus. Defeat that stupid Ultimate Sus!"""
 
 if __name__ == "__main__":
-    test(settings=neoSettings, name="AMOGUS", preamble=preamble)
+    test(settings=betterSettings, name="AMOGUS", preamble=preamble)

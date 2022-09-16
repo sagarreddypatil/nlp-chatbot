@@ -3,4 +3,4 @@
 source ./envsetup.sh
 
 date >> log.txt
-python3 -m discord.main
+python3 -m discord.main >> log.txt
