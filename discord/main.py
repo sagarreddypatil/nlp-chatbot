@@ -10,7 +10,7 @@ import discord
 import argparse
 import shlex
 from chatbot.chatbot import ChatbotMessage, Conversation, Chatbot, BruhChatbot
-from chatbot import gpt2
+from chatbot import transformer
 from random import random
 import numpy as np
 
@@ -51,8 +51,8 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         print("Loading Model")
-        self.model: Chatbot = gpt2.GPT2(
-            name=name, preamble=preamble, settings=gpt2.largeSaneSettings
+        self.model: Chatbot = transformer.Transformer(
+            name=name, preamble=preamble, settings=transformer.largeSaneSettings
         )
         # self.model: Chatbot = BruhChatbot(name=name, description=description)
 

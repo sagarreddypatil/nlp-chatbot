@@ -20,16 +20,16 @@ largeSaneSettings = GPT2Settings(
     model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
-distilSaneSettings = GPT2Settings(
-    model_name="distilgpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
-)
-
 smallNeoSaneSettings = GPT2Settings(
     model_name="EleutherAI/gpt-neo-125M",
-    temperature=1.0,
+    temperature=0.9,
     top_p=0.9,
-    top_k=None,
-    repetition_penalty=0.8,
+    top_k=50,
+    repetition_penalty=1.33,
+)
+
+distilSaneSettings = GPT2Settings(
+    model_name="distilgpt2", temperature=0.9, top_p=0.9, top_k=50, repetition_penalty=1.33
 )
 
 bigBrainSettings = GPT2Settings(
@@ -50,7 +50,7 @@ neoSettings = GPT2Settings(
 
 
 # Sike it's actually distilgpt2
-class GPT2(Chatbot):
+class Transformer(Chatbot):
     def _init_model(self, settings: GPT2Settings):
         self.settings = settings
         self.device = torch.device(
@@ -61,23 +61,17 @@ class GPT2(Chatbot):
         self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
         self.model.eval()
 
-        self.eos = self.tokenizer.encode("\n")[0]
+        if self.model.config.pad_token_id is None:
+            self.model.config.pad_token_id = self.model.config.eos_token_id
+
+        self.endline_token = self.tokenizer.encode("\n")[0]
+        self.model_eos_str = self.tokenizer.decode([self.model.config.eos_token_id])
 
         self.seperator = ":"
 
-    #         self.zeroshot_examples = f"""Available Tags: [response], [no-response], [reply]
-    # {self.name}{self.seperator}[response]Hi!
-    # {self.name}{self.seperator}[response]How are you?
-    # User{self.seperator}I'm fine.
-    # {self.name}{self.seperator}[no-response]
-    # User{self.seperator}So what do you do?
-    # {self.name}{self.seperator}[reply]I hate myself\n"""
-
     def _generate_model_input(self, convo: Conversation) -> str:
         out = super()._generate_model_input(convo)
-        # out = out.replace(f"{self.name}{self.seperator}", f"{self.name}{self.seperator}[response]")
         out += f"{self.name}{self.seperator}"
-        # out = self.zeroshot_examples + out + "["
         return out
 
     def model_max_length(self) -> str:
@@ -99,15 +93,16 @@ class GPT2(Chatbot):
             max_length=max(
                 len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length
             ),
-            num_beams=1,
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,
-            eos_token_id=self.eos,
-            pad_token_id=50256,
+            eos_token_id=self.endline_token,
+            num_beams=1,
+            exponential_decay_length_penalty=(20, 0.9),
+            do_sample=True,
         )
         output = self.tokenizer.decode(outputs[0])
-        output = output.split("<|endoftext|>")[0]
+        output = output.split(self.model_eos_str)[0]
 
         # print("\n==============================")
         # print(output)
@@ -121,7 +116,7 @@ class GPT2(Chatbot):
 preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain. From that day forward, we are not suspicious Sus, but suspension Sus.
 I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
 The following is a conversation on Discord involving AMOGUS
-====="""
+-----"""
 
 if __name__ == "__main__":
-    test(settings=smallNeoSaneSettings, name="AMOGUS", preamble=preamble)
+    test(settings=largeSaneSettings, name="AMOGUS", preamble=preamble)
