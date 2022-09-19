@@ -24,6 +24,14 @@ distilSaneSettings = GPT2Settings(
     model_name="distilgpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
+smallNeoSaneSettings = GPT2Settings(
+    model_name="EleutherAI/gpt-neo-125M",
+    temperature=1.0,
+    top_p=0.9,
+    top_k=None,
+    repetition_penalty=0.8,
+)
+
 bigBrainSettings = GPT2Settings(
     model_name="gpt2-xl",
     temperature=1.0,
@@ -111,7 +119,9 @@ class GPT2(Chatbot):
 
 
 preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain. From that day forward, we are not suspicious Sus, but suspension Sus.
-I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS"""
+I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
+The following is a conversation on Discord involving AMOGUS
+====="""
 
 if __name__ == "__main__":
-    test(settings=averageSettings, name="AMOGUS", preamble=preamble)
+    test(settings=smallNeoSaneSettings, name="AMOGUS", preamble=preamble)
