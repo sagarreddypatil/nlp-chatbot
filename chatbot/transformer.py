@@ -11,6 +11,7 @@ class GPT2Settings(NamedTuple):
     repetition_penalty: float
     max_outlen: int = 128
 
+
 gpt2 = GPT2Settings(
     model_name="gpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
