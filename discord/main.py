@@ -17,7 +17,8 @@ import numpy as np
 
 name = "AMOGUS"
 preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain. From that day forward, we are not suspicious Sus, but suspension Sus.
-I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS"""
+I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
+-----"""
 
 description = """I like finding who is sus"""
 cmd_text = f"{name.lower()}-cmd"
@@ -51,10 +52,10 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         print("Loading Model")
-        self.model: Chatbot = transformer.Transformer(
-            name=name, preamble=preamble, settings=transformer.gpt2Large
-        )
-        # self.model: Chatbot = BruhChatbot(name=name, description=description)
+        # self.model: Chatbot = transformer.Transformer(
+        #     name=name, preamble=preamble, settings=transformer.gpt2Large
+        # )
+        self.model: Chatbot = BruhChatbot(name=name, description=description)
 
         print("Model Loaded")
 
