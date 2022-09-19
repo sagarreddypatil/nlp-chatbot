@@ -267,3 +267,5 @@ $RECYCLE.BIN/
 models/
 **/log.*
 chatdata/*
+
+*.out
