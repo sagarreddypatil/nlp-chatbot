@@ -40,7 +40,7 @@ class Conversation(object):
             if self.__queue[i].sender == sender:
                 return i, self.__queue[i]
 
-    def do_fifo(self):
+    def dequeue(self):
         self.start_offset += 1
 
     def get_queue(self):

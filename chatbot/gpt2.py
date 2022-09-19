@@ -82,7 +82,7 @@ class GPT2(Chatbot):
             len(self.tokenizer.encode(input_text))
             >= self.tokenizer.model_max_length - self.settings.max_outlen
         ):
-            convo.do_fifo()
+            convo.dequeue()
             input_text = self._generate_model_input(convo)
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
