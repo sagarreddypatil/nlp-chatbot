@@ -16,6 +16,10 @@ crackheadSettings = GPT2Settings(
     model_name="distilgpt2", temperature=0.7, top_p=0.9, top_k=None, repetition_penalty=2.0
 )
 
+averageSettings = GPT2Settings(
+    model_name="gpt2-medium", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
+)
+
 betterSettings = GPT2Settings(
     model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
@@ -113,4 +117,4 @@ preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord A
 I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS"""
 
 if __name__ == "__main__":
-    test(settings=betterSettings, name="AMOGUS", preamble=preamble)
+    test(settings=averageSettings, name="AMOGUS", preamble=preamble)
