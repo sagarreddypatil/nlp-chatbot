@@ -146,7 +146,7 @@ class NLPChatbot(discord.Client):
             idx, old_msg = convo.get_last_message(sender=name)
             if old_msg:
                 new_msg = ChatbotMessage(old_msg.sender, " ".join(args.gaslight))
-                convo.queue[idx] = new_msg
+                convo.amend(idx, new_msg)
 
         if args.gaslight or args.history:
             await message.channel.send(

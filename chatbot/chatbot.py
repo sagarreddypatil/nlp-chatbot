@@ -32,7 +32,7 @@ class Conversation(object):
     def add_message(self, message: ChatbotMessage):
         self.__queue.append(message)
 
-    def get_last_message(self, sender: str = None) -> ChatbotMessage:
+    def get_last_message(self, sender: str = None) -> tuple[int, ChatbotMessage]:
         if sender is None:
             return self.__queue[-1]
 
@@ -45,6 +45,9 @@ class Conversation(object):
 
     def get_queue(self):
         return self.__queue[self.start_offset :]
+
+    def amend(self, idx: int, message: ChatbotMessage):
+        self.__queue[idx] = message
 
     queue = property(fget=get_queue)
 
