@@ -116,6 +116,7 @@ class BruhChatbot(Chatbot):
 
 def test(**kwargs):
     print("============== Chatbot Tester ==============")
+    name = input("Enter your name: ")
     for i, subclass in enumerate(Chatbot.__subclasses__()):
         print(f"{i}: {subclass.__name__}")
 
@@ -127,7 +128,6 @@ def test(**kwargs):
     conversation = Conversation("test")
 
     print("Loaded Chatbot\n")
-    name = input("Enter your name: ")
 
     while True:
         try:

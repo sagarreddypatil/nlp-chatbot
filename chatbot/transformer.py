@@ -11,28 +11,19 @@ class GPT2Settings(NamedTuple):
     repetition_penalty: float
     max_outlen: int = 128
 
-
-distilInsaneSettings = GPT2Settings(
-    model_name="distilgpt2", temperature=0.7, top_p=0.9, top_k=None, repetition_penalty=2.0
+gpt2 = GPT2Settings(
+    model_name="gpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
-largeSaneSettings = GPT2Settings(
+gpt2Medium = GPT2Settings(
+    model_name="gpt2-medium", temperature=1.0, top_p=0.90, top_k=None, repetition_penalty=1.33
+)
+
+gpt2Large = GPT2Settings(
     model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
-smallNeoSaneSettings = GPT2Settings(
-    model_name="EleutherAI/gpt-neo-125M",
-    temperature=0.9,
-    top_p=0.9,
-    top_k=50,
-    repetition_penalty=1.33,
-)
-
-distilSaneSettings = GPT2Settings(
-    model_name="distilgpt2", temperature=0.9, top_p=0.9, top_k=50, repetition_penalty=1.33
-)
-
-bigBrainSettings = GPT2Settings(
+gpt2XL = GPT2Settings(
     model_name="gpt2-xl",
     temperature=1.0,
     top_p=0.9,
@@ -40,12 +31,24 @@ bigBrainSettings = GPT2Settings(
     repetition_penalty=1.33,
 )
 
-neoSettings = GPT2Settings(
-    model_name="EleutherAI/gpt-neo-1.3B",
-    temperature=0.9,
-    top_p=None,
+gptDistil = GPT2Settings(
+    model_name="distilgpt2", temperature=0.8, top_p=0.9, top_k=None, repetition_penalty=1.2
+)
+
+gptNeoSmall = GPT2Settings(
+    model_name="EleutherAI/gpt-neo-125M",
+    temperature=1.1,
+    top_p=0.9,
     top_k=None,
-    repetition_penalty=50.0,
+    repetition_penalty=1.2,
+)
+
+gptNeo = GPT2Settings(
+    model_name="EleutherAI/gpt-neo-1.3B",
+    temperature=1.1,
+    top_p=0.9,
+    top_k=None,
+    repetition_penalty=1.2,
 )
 
 
@@ -98,7 +101,7 @@ class Transformer(Chatbot):
             repetition_penalty=self.settings.repetition_penalty,
             eos_token_id=self.endline_token,
             num_beams=1,
-            exponential_decay_length_penalty=(20, 0.9),
+            exponential_decay_length_penalty=(10, 0.75),
             do_sample=True,
         )
         output = self.tokenizer.decode(outputs[0])
@@ -115,8 +118,7 @@ class Transformer(Chatbot):
 
 preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain. From that day forward, we are not suspicious Sus, but suspension Sus.
 I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
-The following is a conversation on Discord involving AMOGUS
 -----"""
 
 if __name__ == "__main__":
-    test(settings=largeSaneSettings, name="AMOGUS", preamble=preamble)
+    test(settings=gpt2Large, name="AMOGUS", preamble=preamble)
