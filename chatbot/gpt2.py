@@ -12,19 +12,15 @@ class GPT2Settings(NamedTuple):
     max_outlen: int = 128
 
 
-crackheadSettings = GPT2Settings(
+distilInsaneSettings = GPT2Settings(
     model_name="distilgpt2", temperature=0.7, top_p=0.9, top_k=None, repetition_penalty=2.0
 )
 
-averageSettings = GPT2Settings(
-    model_name="gpt2-medium", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
-)
-
-betterSettings = GPT2Settings(
+largeSaneSettings = GPT2Settings(
     model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
-idkSettings = GPT2Settings(
+distilSaneSettings = GPT2Settings(
     model_name="distilgpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
@@ -95,6 +91,7 @@ class GPT2(Chatbot):
             max_length=max(
                 len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length
             ),
+            num_beams=1,
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,
