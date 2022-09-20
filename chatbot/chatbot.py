@@ -1,10 +1,10 @@
-from pydoc import describe
-from typing import NamedTuple, Tuple
-from datetime import datetime
+from .conversation import *
 import os
 import re
-
 import codecs
+import logging
+
+logger = logging.getLogger(__name__)
 
 with open(os.path.join(os.path.dirname(__file__), "slurs-encoded.txt"), "r") as f:
     slurs = f.read().splitlines()
@@ -16,63 +16,6 @@ with open(os.path.join(os.path.dirname(__file__), "slurs-encoded.txt"), "r") as 
 
 def has_slur(message: str):
     return slurs.search(message.lower()) is not None
-
-
-class ChatbotMessage(NamedTuple):
-    sender: str
-    message: str
-
-
-class Conversation(object):
-    def __init__(self, id):
-        self.id = id
-        self.__queue: list(ChatbotMessage) = []
-        self.start_offset = 0
-
-    def add_message(self, message: ChatbotMessage):
-        self.__queue.append(message)
-
-    def get_last_message(self, sender: str = None) -> Tuple[int, ChatbotMessage]:
-        if sender is None:
-            return self.__queue[-1]
-
-        for i in range(len(self.__queue) - 1, -1, -1):
-            if self.__queue[i].sender == sender:
-                return i, self.__queue[i]
-
-    def dequeue(self):
-        self.start_offset += 1
-
-    def get_queue(self):
-        return self.__queue[self.start_offset :]
-
-    def amend(self, idx: int, message: ChatbotMessage):
-        self.__queue[idx] = message
-
-    queue = property(fget=get_queue)
-
-    def dump(self):
-        if not os.path.isdir("chatdata"):
-            os.mkdir("chatdata")
-
-        uid = f"{self.id}_{datetime.now().isoformat()}"
-        with open(f"chatdata/{uid}.txt", "w") as f:
-            f.write(self.summary(full=True))
-
-    def reset(self):
-        self.dump()
-
-        self.start_offset = 0
-        self.__queue = []
-
-    def summary(self, full=False) -> str:
-        out = ""
-        msgs = self.__queue if full else self.queue
-
-        for message in msgs:
-            out += f"{message.sender}: {message.message}\n"
-
-        return out
 
 
 class Chatbot(object):
@@ -94,7 +37,7 @@ class Chatbot(object):
     def generate_response(self, convo: Conversation) -> str:
         response = self._generate(convo)
         if has_slur(response):
-            print(f"Slur detected: {response}")
+            logger.info(f"Generated response containing slur: {response}")
             return
 
         convo.add_message(ChatbotMessage(self.name, response))

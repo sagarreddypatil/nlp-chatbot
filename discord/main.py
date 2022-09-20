@@ -13,6 +13,15 @@ from chatbot.chatbot import ChatbotMessage, Conversation, Chatbot, BruhChatbot
 from chatbot import transformer
 from random import random
 import numpy as np
+import logging
+
+log_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+log_handler = logging.FileHandler("discord.log", encoding="utf-8", mode="w")
+log_handler.setFormatter(log_formatter)
+
+logger = logging.getLogger(__name__)
+logger.addHandler(log_handler)
 
 
 name = "AMOGUS"
@@ -51,16 +60,16 @@ class NLPChatbot(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
-        print("Loading Model")
+        logger.info("Loading Model")
         self.model: Chatbot = transformer.Transformer(
             name=name, preamble=preamble, settings=transformer.gpt2Large
         )
         # self.model: Chatbot = BruhChatbot(name=name, preamble=preamble)
 
-        print("Model Loaded")
+        logger.info("Model Loaded")
 
     async def on_ready(self):
-        print(f"Logged in as {self.user}")
+        logger.info(f"Logged in as {self.user}")
 
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
@@ -102,8 +111,8 @@ class NLPChatbot(discord.Client):
         async with channel.typing():
             try:
                 response = self.model.generate_response(convo)
-            except Exception:
-                traceback.print_exc()
+            except Exception as exc:
+                logger.exception(exc)
                 err = True
 
         if not err:
@@ -182,4 +191,4 @@ if __name__ == "__main__":
     client = NLPChatbot(intents=intents)
 
     key = os.getenv("DISCORD_KEY")
-    client.run(key)
+    client.run(key, log_handler=log_handler)
