@@ -1,5 +1,5 @@
 from pydoc import describe
-from typing import NamedTuple
+from typing import NamedTuple, Tuple
 from datetime import datetime
 import os
 import re
@@ -32,7 +32,7 @@ class Conversation(object):
     def add_message(self, message: ChatbotMessage):
         self.__queue.append(message)
 
-    def get_last_message(self, sender: str = None) -> tuple[int, ChatbotMessage]:
+    def get_last_message(self, sender: str = None) -> Tuple[int, ChatbotMessage]:
         if sender is None:
             return self.__queue[-1]
 
