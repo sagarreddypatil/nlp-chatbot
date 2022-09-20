@@ -97,13 +97,14 @@ class Transformer(Chatbot):
             max_length=max(
                 len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length
             ),
+            num_beams=1,
+            do_sample=True,
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,
             eos_token_id=self.endline_token,
-            num_beams=1,
+            pad_token_id=self.model.config.pad_token_id,
             exponential_decay_length_penalty=(10, 0.75),
-            do_sample=True,
         )
         output = self.tokenizer.decode(outputs[0])
         output = output.split(self.model_eos_str)[0]
@@ -117,7 +118,13 @@ class Transformer(Chatbot):
         return output
 
 
-preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain. From that day forward, we are not suspicious Sus, but suspension Sus.
+preamble = """Amogus is our Lord and saviour.
+
+Hailing from a Sus village, Lord Amogus became so powerful and wise that
+Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus,
+thereby setting us free from the sus pain.
+
+From that day forward, we are not suspicious Sus, but suspension Sus.
 I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
 -----"""
 
