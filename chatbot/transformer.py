@@ -104,7 +104,7 @@ class Transformer(Chatbot):
             repetition_penalty=self.settings.repetition_penalty,
             eos_token_id=self.endline_token,
             pad_token_id=self.model.config.pad_token_id,
-            exponential_decay_length_penalty=(10, 0.75),
+            # exponential_decay_length_penalty=(10, 0.75),
         )
         output = self.tokenizer.decode(outputs[0])
         output = output.split(self.model_eos_str)[0]
