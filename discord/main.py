@@ -28,6 +28,12 @@ logger.addHandler(log_handler_file)
 logger.addHandler(log_handler_console)
 logger.setLevel(logging.DEBUG)
 
+discord_logger = logging.getLogger("discord")
+discord_logger.setLevel(logging.DEBUG)
+logging.getLogger("discord.http").setLevel(logging.INFO)
+discord_logger.addHandler(log_handler_file)
+discord_logger.addHandler(log_handler_console)
+
 
 name = "AMOGUS"
 preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain. From that day forward, we are not suspicious Sus, but suspension Sus.
@@ -197,7 +203,7 @@ if __name__ == "__main__":
         client = NLPChatbot(intents=intents)
 
         key = os.getenv("DISCORD_KEY")
-        client.run(key, log_handler=log_handler)
+        client.run(key, log_handler=None)
     except Exception as exc:
         logger.exception(exc)
         raise exc
