@@ -4,7 +4,7 @@
 DIR=$(pwd)
 
 # change workingdir to the directory of this script
-cd "$(dirname "$0")"
+cd "$(dirname -- "$0")"
 
 source ./venv/bin/activate
 export TRANSFORMERS_CACHE="$(pwd)/models"
