@@ -73,8 +73,6 @@ class NLPChatbot(discord.Client):
         logger.info(f"Logged in as {self.user}")
 
     async def on_message(self, message: discord.Message):
-        logger.info(message.content)
-
         if message.author == self.user:
             return
 
