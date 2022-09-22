@@ -22,6 +22,7 @@ log_handler.setFormatter(log_formatter)
 
 logger = logging.getLogger(__name__)
 logger.addHandler(log_handler)
+logger.setLevel(logging.DEBUG)
 
 
 name = "AMOGUS"
@@ -72,6 +73,8 @@ class NLPChatbot(discord.Client):
         logger.info(f"Logged in as {self.user}")
 
     async def on_message(self, message: discord.Message):
+        logger.info(message.content)
+
         if message.author == self.user:
             return
 
@@ -93,7 +96,8 @@ class NLPChatbot(discord.Client):
         respond = respond or self.user.mentioned_in(message)
         # respond = respond or (len(message.mentions) == 0 and random() < 0.05)
         respond = respond or (
-            convo.queue[-2].sender == name
+            len(convo.queue) >= 2
+            and convo.queue[-2].sender == name
             and ("you" in content.lower() or "we" in content.lower() or (True and random() < 0.33))
         )
 
@@ -168,11 +172,9 @@ class NLPChatbot(discord.Client):
             )
 
     def create_embed(self, author, title: str, description: str, footer=None) -> discord.Embed:
-        embed = discord.Embed(
-            title=title, description=description, footer=footer, color=discord.Color.blue()
-        )
+        embed = discord.Embed(title=title, description=description, color=discord.Color.blue())
         if author:
-            embed.set_author(name=author.display_name, icon_url=author.avatar_url)
+            embed.set_author(name=author.display_name, icon_url=author.avatar.url)
         if footer:
             embed.set_footer(text=footer)
 
@@ -186,9 +188,14 @@ class NLPChatbot(discord.Client):
 
 
 if __name__ == "__main__":
-    intents = discord.Intents.default()
-    intents.messages = True
-    client = NLPChatbot(intents=intents)
+    try:
+        intents = discord.Intents.default()
+        intents.messages = True
+        intents.message_content = True
+        client = NLPChatbot(intents=intents)
 
-    key = os.getenv("DISCORD_KEY")
-    client.run(key, log_handler=log_handler)
+        key = os.getenv("DISCORD_KEY")
+        client.run(key, log_handler=log_handler)
+    except Exception as exc:
+        logger.exception(exc)
+        raise exc
