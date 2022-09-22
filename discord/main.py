@@ -1,11 +1,3 @@
-from inspect import trace
-import os
-import traceback
-from dotenv import load_dotenv
-
-load_dotenv()
-os.environ["TRANSFORMERS_CACHE"] = "./models"
-
 import discord
 import argparse
 import shlex
@@ -15,13 +7,25 @@ from random import random
 import numpy as np
 import logging
 
-log_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+import sys
+import os
+from dotenv import load_dotenv
 
-log_handler = logging.FileHandler("discord.log", encoding="utf-8", mode="w")
-log_handler.setFormatter(log_formatter)
+load_dotenv()
+os.environ["TRANSFORMERS_CACHE"] = "./models"
+
+
+log_formatter = logging.Formatter("[%(asctime)s][%(levelname)s] %(name)s: %(message)s")
+
+log_handler_file = logging.FileHandler("discord.log", encoding="utf-8", mode="w")
+log_handler_file.setFormatter(log_formatter)
+
+log_handler_console = logging.StreamHandler(sys.stdout)
+log_handler_console.setFormatter(log_formatter)
 
 logger = logging.getLogger(__name__)
-logger.addHandler(log_handler)
+logger.addHandler(log_handler_file)
+logger.addHandler(log_handler_console)
 logger.setLevel(logging.DEBUG)
 
 
