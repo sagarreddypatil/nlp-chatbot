@@ -124,6 +124,11 @@ class Transformer(Chatbot):
         # print("==============================\n")
 
         output = output[len(input_text) :].strip()
+        firstBracket = output.find("<")
+        firstClosing = output.find(">")
+
+        if firstBracket != -1 and firstClosing != -1:
+            output = output[:firstBracket]
 
         return output
 
