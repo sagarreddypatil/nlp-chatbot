@@ -29,7 +29,7 @@ class Conversation(object):
     def dequeue(self):
         self.start_offset += 1
 
-    def get_queue(self):
+    def get_queue(self) -> list[ChatbotMessage]:
         return self.__queue[self.start_offset :]
 
     def amend(self, idx: int, message: ChatbotMessage):

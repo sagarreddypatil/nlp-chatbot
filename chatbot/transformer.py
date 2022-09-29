@@ -57,27 +57,33 @@ gptNeo = GPT2Settings(
 class Transformer(Chatbot):
     def _init_model(self, settings: GPT2Settings):
         self.settings = settings
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() and not self.force_cpu else "cpu"
-        )
 
-        self.model = AutoModelForCausalLM.from_pretrained(settings.model_name).to(self.device)
-        self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
+        if torch.cuda.is_available():
+            self.gpu = True
+            self.model = AutoModelForCausalLM.from_pretrained(
+                settings.model_name, device_map="auto", load_in_8bit=True
+            )
+            self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
+        else:
+            self.gpu = False
+            self.model = AutoModelForCausalLM.from_pretrained(settings.model_name)
+            self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
+
         self.model.eval()
 
         if self.model.config.pad_token_id is None:
             self.model.config.pad_token_id = self.model.config.eos_token_id
 
-        print(self.model.config.pad_token_id)
-
         self.endline_token = self.tokenizer.encode("\n")[0]
         self.model_eos_str = self.tokenizer.decode([self.model.config.eos_token_id])
 
-        self.seperator = ":"
-
     def _generate_model_input(self, convo: Conversation) -> str:
-        out = super()._generate_model_input(convo)
-        out += f"{self.name}{self.seperator}"
+        out = ""
+        message: ChatbotMessage = None
+        for message in convo.queue:
+            out += f"<{message.sender}>{message.message}\n"
+
+        out += f"<{self.name}>"
         return out
 
     def model_max_length(self) -> str:
@@ -95,7 +101,7 @@ class Transformer(Chatbot):
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
         outputs = self.model.generate(
-            input_ids.to(self.device),
+            input_ids.cuda() if self.gpu else input_ids,
             max_length=max(
                 len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length
             ),
@@ -115,7 +121,7 @@ class Transformer(Chatbot):
         # print(output)
         # print("==============================\n")
 
-        output = output.split(f"{self.name}{self.seperator.strip()}")[-1].replace("\n", "").strip()
+        output = output[len(input_text) :].strip()
 
         return output
 
