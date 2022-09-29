@@ -1,6 +1,6 @@
 import datetime
 import os
-from typing import NamedTuple, Optional, Tuple
+from typing import NamedTuple, Optional, Tuple, List
 
 
 class ChatbotMessage(NamedTuple):
@@ -29,7 +29,7 @@ class Conversation(object):
     def dequeue(self):
         self.start_offset += 1
 
-    def get_queue(self) -> list[ChatbotMessage]:
+    def get_queue(self) -> List[ChatbotMessage]:
         return self.__queue[self.start_offset :]
 
     def amend(self, idx: int, message: ChatbotMessage):
