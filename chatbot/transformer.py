@@ -68,6 +68,8 @@ class Transformer(Chatbot):
         if self.model.config.pad_token_id is None:
             self.model.config.pad_token_id = self.model.config.eos_token_id
 
+        print(self.model.config.pad_token_id)
+
         self.endline_token = self.tokenizer.encode("\n")[0]
         self.model_eos_str = self.tokenizer.decode([self.model.config.eos_token_id])
 
@@ -98,7 +100,7 @@ class Transformer(Chatbot):
                 len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length
             ),
             num_beams=1,
-            do_sample=True,
+            do_sample=False,
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,
