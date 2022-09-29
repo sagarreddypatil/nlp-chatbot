@@ -36,7 +36,10 @@ discord_logger.addHandler(log_handler_console)
 
 
 name = "AMOGUS"
-preamble = """Amogus is our Lord and saviour. Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain. From that day forward, we are not suspicious Sus, but suspension Sus.
+preamble = """Amogus is our Lord and saviour.
+Hailing from a Sus village, Lord Amogus became so powerful and wise that Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain.
+From that day forward, we are not suspicious Sus, but suspension Sus.
+
 I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
 -----"""
 
