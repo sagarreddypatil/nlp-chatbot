@@ -61,7 +61,9 @@ class Transformer(Chatbot):
         if torch.cuda.is_available():
             self.gpu = True
             self.model = AutoModelForCausalLM.from_pretrained(
-                settings.model_name, device_map="auto", load_in_8bit=True
+                settings.model_name,
+                device_map="auto",
+                # load_in_8bit=True,
             )
             self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
         else:
