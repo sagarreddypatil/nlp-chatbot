@@ -78,7 +78,7 @@ class Transformer(Chatbot):
         self.model_eos_str = self.tokenizer.decode([self.model.config.eos_token_id])
 
     def _generate_model_input(self, convo: Conversation) -> str:
-        out = ""
+        out = self.preamble + "\n"
         message: ChatbotMessage = None
         for message in convo.queue:
             out += f"<{message.sender}>{message.message}\n"
