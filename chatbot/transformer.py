@@ -1,6 +1,7 @@
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from .chatbot import *
+import arrow
 
 
 class GPT2Settings(NamedTuple):
@@ -83,9 +84,9 @@ class Transformer(Chatbot):
         out = self.preamble + "\n"
         message: ChatbotMessage = None
         for message in convo.queue:
-            out += f"<{message.sender}>{message.message}\n"
+            out += f"<{message.sender}>[{arrow.utcnow().shift(seconds=message.timestamp * -1).humanize()}]{message.message}\n"
 
-        out += f"<{self.name}>"
+        out += f"<{self.name}>[{arrow.utcnow().humanize()}]"
         return out
 
     def model_max_length(self) -> str:
