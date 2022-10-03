@@ -19,10 +19,10 @@ def has_slur(message: str):
 
 
 class Chatbot(object):
-    def __init__(self, name: str, force_cpu: bool = False, **kwargs):
+    def __init__(self, name: str, preamble: str = "", force_cpu: bool = False, **kwargs):
         self.name = name
         self.force_cpu = force_cpu
-        self.seperator = ": "
+        self.preamble = preamble
 
         self._init_model(**kwargs)
 
