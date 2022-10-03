@@ -34,6 +34,8 @@ logging.getLogger("discord.http").setLevel(logging.INFO)
 discord_logger.addHandler(log_handler_file)
 discord_logger.addHandler(log_handler_console)
 
+chat_logdir = "chatlogs/"
+
 
 name = "AMOGUS"
 preamble = """Amogus is our Lord and saviour.
@@ -95,7 +97,7 @@ class NLPChatbot(discord.Client):
         channel_id: int = message.channel.id
         if channel_id not in self.convos:
             convo_id = f"{message.guild.id}_{message.channel.name}"
-            self.convos[channel_id] = Conversation(convo_id)
+            self.convos[channel_id] = Conversation(convo_id, logdir=chat_logdir)
 
         content: str = message.clean_content
 
