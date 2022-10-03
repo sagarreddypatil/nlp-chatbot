@@ -85,10 +85,10 @@ class Transformer(Chatbot):
         message: ChatbotMessage = None
         for message in convo.queue:
             out += (
-                f"<{message.sender}>[{arrow.get(message.timestamp).humanize()}]{message.message}\n"
+                f"[{arrow.get(message.timestamp).humanize()}]<{message.sender}>{message.message}\n"
             )
 
-        out += f"<{self.name}>[{arrow.utcnow().humanize()}]"
+        out += f"[{arrow.utcnow().humanize()}]<{self.name}>"
         return out
 
     def model_max_length(self) -> str:
