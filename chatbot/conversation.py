@@ -3,9 +3,11 @@ import os
 from typing import NamedTuple, Optional, Tuple, List
 
 
-class ChatbotMessage(NamedTuple):
-    sender: str
-    message: str
+class ChatbotMessage:
+    def __init__(self, sender: str, message: str):
+        self.sender = sender
+        self.message = message
+        self.timestamp = datetime.datetime.now()
 
 
 class Conversation(object):
