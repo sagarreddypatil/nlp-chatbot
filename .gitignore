@@ -265,7 +265,7 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,windows,linux,macos
 
 models/
-chatdata/*
+chatlogs/*
 *.log
 
 *.out
