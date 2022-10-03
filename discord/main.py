@@ -96,11 +96,10 @@ class NLPChatbot(discord.Client):
 
         channel_id: int = message.channel.id
         if channel_id not in self.convos:
-            if channel_id == message.author.dm_channel.id:
-                # in DMs
+            # check if dm or server channel
+            if isinstance(message.channel, discord.DMChannel):
                 convo_id = f"dm_{message.author.name}_{message.author.discriminator}"
             else:
-                # normal server channel
                 convo_id = f"{message.guild.id}_{message.channel.name}"
 
             self.convos[channel_id] = Conversation(convo_id, logdir=chat_logdir)
