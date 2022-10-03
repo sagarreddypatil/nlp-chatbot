@@ -84,7 +84,9 @@ class Transformer(Chatbot):
         out = self.preamble + "\n"
         message: ChatbotMessage = None
         for message in convo.queue:
-            out += f"<{message.sender}>[{arrow.utcnow().shift(seconds=message.timestamp * -1).humanize()}]{message.message}\n"
+            out += (
+                f"<{message.sender}>[{arrow.get(message.timestamp).humanize()}]{message.message}\n"
+            )
 
         out += f"<{self.name}>[{arrow.utcnow().humanize()}]"
         return out
