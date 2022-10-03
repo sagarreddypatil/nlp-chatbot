@@ -106,7 +106,7 @@ class NLPChatbot(discord.Client):
                 convo_id = f"{message.guild.id}_{message.channel.name}"
 
             self.convos[channel_id] = Conversation(
-                f"{convo_id}-{int(time.time())}", logdir=chat_logdir
+                f"{convo_id}_{int(time.time())}", logdir=chat_logdir
             )
 
         if content.startswith(cmd_text):
