@@ -95,6 +95,8 @@ class NLPChatbot(discord.Client):
             return
 
         channel_id: int = message.channel.id
+        content: str = message.clean_content
+
         if channel_id not in self.convos:
             # check if dm or server channel
             if isinstance(message.channel, discord.DMChannel):
@@ -103,8 +105,6 @@ class NLPChatbot(discord.Client):
                 convo_id = f"{message.guild.id}_{message.channel.name}"
 
             self.convos[channel_id] = Conversation(convo_id, logdir=chat_logdir)
-
-        content: str = message.clean_content
 
         if content.startswith(cmd_text):
             await self.handle_cmd(message)

@@ -21,6 +21,7 @@ class Conversation(object):
 
     def add_message(self, message: ChatbotMessage):
         self.__queue.append(message)
+        self.dump()
 
     def get_last_message(self, sender: str = None) -> Tuple[int, ChatbotMessage]:
         if sender is None:
@@ -52,7 +53,7 @@ class Conversation(object):
             os.mkdir(self.logdir)
 
         with open(os.path.join(self.logdir, f"{self.id}.json"), "w") as f:
-            f.write(json.dumps([a.__dict__ for a in self.__queue]))
+            f.write(json.dumps([a.__dict__ for a in self.__queue], indent=4))
 
     def reset(self):
         self.dump()
