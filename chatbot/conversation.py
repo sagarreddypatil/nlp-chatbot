@@ -55,12 +55,6 @@ class Conversation(object):
         with open(os.path.join(self.logdir, f"{self.id}.json"), "w") as f:
             f.write(json.dumps([a.__dict__ for a in self.__queue], indent=4))
 
-    def reset(self):
-        self.dump()
-
-        self.start_offset = 0
-        self.__queue = []
-
     def summary(self, full=False) -> str:
         out = ""
         msgs = self.__queue if full else self.queue

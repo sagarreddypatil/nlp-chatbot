@@ -1,3 +1,4 @@
+import time
 import discord
 import argparse
 import shlex
@@ -104,7 +105,9 @@ class NLPChatbot(discord.Client):
             else:
                 convo_id = f"{message.guild.id}_{message.channel.name}"
 
-            self.convos[channel_id] = Conversation(convo_id, logdir=chat_logdir)
+            self.convos[channel_id] = Conversation(
+                f"{convo_id}-{int(time.time())}", logdir=chat_logdir
+            )
 
         if content.startswith(cmd_text):
             await self.handle_cmd(message)
@@ -166,7 +169,8 @@ class NLPChatbot(discord.Client):
 
         convo = self.convos[message.channel.id]
         if args.reset:
-            convo.reset()
+            convo.dump()
+            del self.convos[message.channel.id]
 
             await message.channel.send(
                 embed=self.create_embed(
