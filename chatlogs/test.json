@@ -1,0 +1,32 @@
+[
+    {
+        "sender": "hi there",
+        "message": "hello!",
+        "timestamp": 1664768857.2602353
+    },
+    {
+        "sender": "Bot",
+        "message": "Bruh",
+        "timestamp": 1664768857.2602546
+    },
+    {
+        "sender": "hi there",
+        "message": "wow tahts so insightful",
+        "timestamp": 1664768860.2266273
+    },
+    {
+        "sender": "Bot",
+        "message": "Bruh",
+        "timestamp": 1664768860.226674
+    },
+    {
+        "sender": "hi there",
+        "message": "that's great",
+        "timestamp": 1664768862.47563
+    },
+    {
+        "sender": "Bot",
+        "message": "Bruh",
+        "timestamp": 1664768862.4756546
+    }
+]

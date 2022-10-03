@@ -19,12 +19,10 @@ def has_slur(message: str):
 
 
 class Chatbot(object):
-    def __init__(self, name: str, preamble: str, force_cpu: bool = False, **kwargs):
+    def __init__(self, name: str, force_cpu: bool = False, **kwargs):
         self.name = name
         self.force_cpu = force_cpu
         self.seperator = ": "
-
-        self.preamble = preamble
 
         self._init_model(**kwargs)
 
@@ -44,13 +42,6 @@ class Chatbot(object):
 
         return response
 
-    def _generate_model_input(self, convo: Conversation) -> str:
-        out = self.preamble + "\n" if self.preamble else ""
-        for message in convo.queue:
-            out += f"{message.sender}{self.seperator}{message.message}\n"
-
-        return out
-
     def _generate(self) -> str:
         pass
 
@@ -58,6 +49,9 @@ class Chatbot(object):
 class BruhChatbot(Chatbot):
     def _generate(self, convo: Conversation) -> str:
         return "Bruh"
+
+    def _generate_model_input(self, convo: Conversation) -> str:
+        return ""
 
 
 def test(**kwargs):
@@ -71,7 +65,7 @@ def test(**kwargs):
         choice = int(input("Select a chatbot: "))
 
     chatbot = Chatbot.__subclasses__()[choice](**kwargs)
-    conversation = Conversation("test")
+    conversation = Conversation("test", logdir="chatlogs")
 
     print("Loaded Chatbot\n")
 

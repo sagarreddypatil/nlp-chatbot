@@ -1,13 +1,15 @@
 import datetime
 import os
+import time
 from typing import NamedTuple, Optional, Tuple, List
+import json
 
 
 class ChatbotMessage:
     def __init__(self, sender: str, message: str):
         self.sender = sender
         self.message = message
-        self.timestamp = datetime.datetime.now()
+        self.timestamp = time.time()
 
 
 class Conversation(object):
@@ -49,9 +51,8 @@ class Conversation(object):
         if not os.path.isdir(self.logdir):
             os.mkdir(self.logdir)
 
-        uid = f"{self.id}_{datetime.now().isoformat()}"
-        with open(os.path.join(self.logdir, f"{uid}.txt"), "w") as f:
-            f.write(self.summary(full=True))
+        with open(os.path.join(self.logdir, f"{self.id}.json"), "w") as f:
+            f.write(json.dumps([a.__dict__ for a in self.__queue]))
 
     def reset(self):
         self.dump()
