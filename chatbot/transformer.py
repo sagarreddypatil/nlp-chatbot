@@ -4,7 +4,7 @@ from .chatbot import *
 import arrow
 
 
-class GPT2Settings(NamedTuple):
+class TransformerSettings(NamedTuple):
     model_name: str
     temperature: float
     top_p: float
@@ -13,19 +13,19 @@ class GPT2Settings(NamedTuple):
     max_outlen: int = 128
 
 
-gpt2 = GPT2Settings(
+gpt2 = TransformerSettings(
     model_name="gpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
-gpt2Medium = GPT2Settings(
+gpt2Medium = TransformerSettings(
     model_name="gpt2-medium", temperature=1.0, top_p=0.90, top_k=None, repetition_penalty=1.33
 )
 
-gpt2Large = GPT2Settings(
+gpt2Large = TransformerSettings(
     model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
 )
 
-gpt2XL = GPT2Settings(
+gpt2XL = TransformerSettings(
     model_name="gpt2-xl",
     temperature=1.0,
     top_p=0.9,
@@ -33,11 +33,11 @@ gpt2XL = GPT2Settings(
     repetition_penalty=1.33,
 )
 
-gptDistil = GPT2Settings(
+gptDistil = TransformerSettings(
     model_name="distilgpt2", temperature=0.8, top_p=0.9, top_k=None, repetition_penalty=1.2
 )
 
-gptNeoSmall = GPT2Settings(
+gptNeoSmall = TransformerSettings(
     model_name="EleutherAI/gpt-neo-125M",
     temperature=1.1,
     top_p=0.9,
@@ -45,7 +45,7 @@ gptNeoSmall = GPT2Settings(
     repetition_penalty=1.2,
 )
 
-gptNeo = GPT2Settings(
+gptNeo = TransformerSettings(
     model_name="EleutherAI/gpt-neo-1.3B",
     temperature=1.1,
     top_p=0.9,
@@ -56,7 +56,7 @@ gptNeo = GPT2Settings(
 
 # Sike it's actually distilgpt2
 class Transformer(Chatbot):
-    def _init_model(self, settings: GPT2Settings):
+    def _init_model(self, settings: TransformerSettings):
         self.settings = settings
 
         if torch.cuda.is_available():
