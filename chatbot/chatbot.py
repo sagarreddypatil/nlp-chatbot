@@ -38,7 +38,8 @@ class Chatbot(object):
             logger.info(f"Generated response containing slur: {response}")
             return
 
-        convo.add_message(ChatbotMessage(self.name, response))
+        if response != "":
+            convo.add_message(ChatbotMessage(self.name, response))
 
         return response
 

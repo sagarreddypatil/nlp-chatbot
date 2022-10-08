@@ -50,7 +50,7 @@ gptNeo = TransformerSettings(
     temperature=1.1,
     top_p=0.9,
     top_k=None,
-    repetition_penalty=1.2,
+    repetition_penalty=3.0,
 )
 
 
@@ -147,4 +147,4 @@ I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
 -----"""
 
 if __name__ == "__main__":
-    test(settings=gpt2Large, name="AMOGUS", preamble=preamble)
+    test(settings=gptNeo, name="AMOGUS", preamble=preamble)
