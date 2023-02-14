@@ -53,6 +53,14 @@ gptNeo = TransformerSettings(
     repetition_penalty=3.0,
 )
 
+gptJ = TransformerSettings(
+    model_name="EleutherAI/gpt-j-6B",
+    temperature=0.9,
+    top_p=None,
+    top_k=None,
+    repetition_penalty=None,
+)
+
 
 # Sike it's actually distilgpt2
 class Transformer(Chatbot):
@@ -64,6 +72,9 @@ class Transformer(Chatbot):
             self.model = AutoModelForCausalLM.from_pretrained(
                 settings.model_name,
                 device_map="auto",
+                revision="float16",
+                torch_dtype=torch.float16,
+                low_cpu_mem_usage=True,
                 # load_in_8bit=True,
             )
             self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
@@ -143,8 +154,10 @@ Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus,
 thereby setting us free from the sus pain.
 
 From that day forward, we are not suspicious Sus, but suspension Sus.
-I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
+"I am sus and you are sus. Defeat that stupid Ultimate Sus!" - AMOGUS
+
+Following is a conversation between AMOGUS and others in a Discord server
 -----"""
 
 if __name__ == "__main__":
-    test(settings=gptNeo, name="AMOGUS", preamble=preamble)
+    test(settings=gptJ, name="AMOGUS", preamble=preamble)

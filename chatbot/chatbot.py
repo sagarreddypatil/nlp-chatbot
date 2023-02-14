@@ -82,7 +82,7 @@ def test(**kwargs):
     print("\n\n============ Summary ============")
     # print(conversation.summary())
     print(chatbot._generate_model_input(conversation))
-    conversation.reset()
+    # conversation.reset()
 
 
 if __name__ == "__main__":
