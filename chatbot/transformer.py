@@ -55,10 +55,10 @@ gptNeo = TransformerSettings(
 
 gptJ = TransformerSettings(
     model_name="EleutherAI/gpt-j-6B",
-    temperature=0.9,
+    temperature=1.0,
     top_p=None,
     top_k=None,
-    repetition_penalty=None,
+    repetition_penalty=1.3,
 )
 
 

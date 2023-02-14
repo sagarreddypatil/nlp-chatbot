@@ -40,8 +40,7 @@ class Chatbot(object):
 
         if response != "":
             convo.add_message(ChatbotMessage(self.name, response))
-
-        return response
+            return response
 
     def _generate(self) -> str:
         pass
