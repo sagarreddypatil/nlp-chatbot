@@ -46,7 +46,9 @@ Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus,
 thereby setting us free from the sus pain.
 
 From that day forward, we are not suspicious Sus, but suspension Sus.
-I am sus and you are sus. Defeat that stupid Ultimate Sus! - AMOGUS
+"I am sus and you are sus. Defeat that stupid Ultimate Sus!" - AMOGUS
+
+Following is a conversation between AMOGUS and others in a Discord server
 -----"""
 
 description = """I like finding who is sus"""
@@ -126,9 +128,7 @@ class NLPChatbot(discord.Client):
         )
 
         if respond:
-            num_responses = np.random.poisson(0.25) + 1
-            for i in range(num_responses):
-                await self.handle_chat(message)
+            await self.handle_chat(message)
             return
 
     async def handle_chat(self, message: discord.Message):
