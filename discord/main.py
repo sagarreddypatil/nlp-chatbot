@@ -82,7 +82,7 @@ class NLPChatbot(discord.Client):
         self.convos: dict[int, Conversation] = {}
         logger.info("Loading Model")
         self.model: Chatbot = transformer.Transformer(
-            name=name, preamble=preamble, settings=transformer.gpt2Large
+            name=name, preamble=preamble, settings=transformer.gptJ
         )
         # self.model: Chatbot = BruhChatbot(name=name, preamble=preamble)
 
