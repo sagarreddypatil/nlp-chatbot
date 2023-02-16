@@ -117,16 +117,14 @@ class Transformer(Chatbot):
         output = self.tokenizer.decode(outputs[0])
         output = output.split(self.model_eos_str)[0]
 
-        # print("\n==============================")
-        # print(output)
-        # print("==============================\n")
-
         output = output[len(input_text) :].strip()
         firstBracket = output.find("<")
         firstClosing = output.find(">")
 
         if firstBracket != -1 and firstClosing != -1:
             output = output[:firstBracket]
+
+        output = output[:-1]
 
         return output
 
