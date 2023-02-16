@@ -69,12 +69,8 @@ class ArgumentParser(argparse.ArgumentParser):
 
 
 parser = ArgumentParser(prog=cmd_text, description=description)
-parser.add_argument(
-    "-r", "--reset", help="Reset conversation history for this channel", action="store_true"
-)
-parser.add_argument(
-    "-g", "--gaslight", help="Change the last response from this bot", nargs="+", type=str
-)
+parser.add_argument("-r", "--reset", help="Reset conversation history for this channel", action="store_true")
+parser.add_argument("-g", "--gaslight", help="Change the last response from this bot", nargs="+", type=str)
 parser.add_argument("-t", "--history", help="Show conversation history", action="store_true")
 
 
@@ -83,9 +79,7 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         logger.info("Loading Model")
-        self.model: Chatbot = transformer.Transformer(
-            name=name, preamble=preamble, settings=transformer.gptJ
-        )
+        self.model: Chatbot = transformer.Transformer(name=name, preamble=preamble, settings=transformer.gptJ)
         # self.model: Chatbot = BruhChatbot(name=name, preamble=preamble)
 
         logger.info("Model Loaded")
@@ -107,9 +101,7 @@ class NLPChatbot(discord.Client):
             else:
                 convo_id = f"{message.guild.id}_{message.channel.name}"
 
-            self.convos[channel_id] = Conversation(
-                f"{convo_id}_{int(time.time())}", logdir=chat_logdir
-            )
+            self.convos[channel_id] = Conversation(f"{convo_id}_{int(time.time())}", logdir=chat_logdir)
 
         if content.startswith(cmd_text):
             await self.handle_cmd(message)
@@ -121,11 +113,7 @@ class NLPChatbot(discord.Client):
         respond = name.lower() in content.lower()
         respond = respond or self.user.mentioned_in(message)
         # respond = respond or (len(message.mentions) == 0 and random() < 0.05)
-        respond = respond or (
-            len(convo.queue) >= 2
-            and convo.queue[-2].sender == name
-            and ("you" in content.lower() or "we" in content.lower() or (True and random() < 0.33))
-        )
+        respond = respond or (len(convo.queue) >= 2 and convo.queue[-2].sender == name and ("you" in content.lower() or "we" in content.lower() or (True and random() < 0.33)))
 
         if respond:
             await self.handle_chat(message)
@@ -138,7 +126,7 @@ class NLPChatbot(discord.Client):
         err = False
         async with channel.typing():
             try:
-                response = self.model.generate_response(convo)
+                response = await self.model.generate_response(convo)
             except Exception as exc:
                 logger.exception(exc)
                 err = True
@@ -147,11 +135,7 @@ class NLPChatbot(discord.Client):
             if response:
                 await channel.send(response)
         else:
-            await channel.send(
-                embed=self.create_embed(
-                    self.user, title="Error", description="Internal error, better luck next message"
-                )
-            )
+            await channel.send(embed=self.create_embed(self.user, title="Error", description="Internal error, better luck next message"))
 
     async def handle_cmd(self, message: discord.Message):
         content = shlex.split(message.clean_content)[1:]
