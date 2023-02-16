@@ -124,7 +124,7 @@ class Transformer(Chatbot):
         if firstBracket != -1 and firstClosing != -1:
             output = output[:firstBracket]
 
-        output = output[:-1]
+        output = output.split('"')[0]
 
         return output
 
