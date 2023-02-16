@@ -13,17 +13,11 @@ class TransformerSettings(NamedTuple):
     max_outlen: int = 128
 
 
-gpt2 = TransformerSettings(
-    model_name="gpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
-)
+gpt2 = TransformerSettings(model_name="gpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33)
 
-gpt2Medium = TransformerSettings(
-    model_name="gpt2-medium", temperature=1.0, top_p=0.90, top_k=None, repetition_penalty=1.33
-)
+gpt2Medium = TransformerSettings(model_name="gpt2-medium", temperature=1.0, top_p=0.90, top_k=None, repetition_penalty=1.33)
 
-gpt2Large = TransformerSettings(
-    model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33
-)
+gpt2Large = TransformerSettings(model_name="gpt2-large", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33)
 
 gpt2XL = TransformerSettings(
     model_name="gpt2-xl",
@@ -33,9 +27,7 @@ gpt2XL = TransformerSettings(
     repetition_penalty=1.33,
 )
 
-gptDistil = TransformerSettings(
-    model_name="distilgpt2", temperature=0.8, top_p=0.9, top_k=None, repetition_penalty=1.2
-)
+gptDistil = TransformerSettings(model_name="distilgpt2", temperature=0.8, top_p=0.9, top_k=None, repetition_penalty=1.2)
 
 gptNeoSmall = TransformerSettings(
     model_name="EleutherAI/gpt-neo-125M",
@@ -62,7 +54,6 @@ gptJ = TransformerSettings(
 )
 
 
-# Sike it's actually distilgpt2
 class Transformer(Chatbot):
     def _init_model(self, settings: TransformerSettings):
         self.settings = settings
@@ -88,18 +79,16 @@ class Transformer(Chatbot):
         if self.model.config.pad_token_id is None:
             self.model.config.pad_token_id = self.model.config.eos_token_id
 
-        self.endline_token = self.tokenizer.encode("\n")[0]
+        self.endline_token = self.tokenizer.encode('"')[0]
         self.model_eos_str = self.tokenizer.decode([self.model.config.eos_token_id])
 
     def _generate_model_input(self, convo: Conversation) -> str:
         out = self.preamble + "\n"
         message: ChatbotMessage = None
         for message in convo.queue:
-            out += (
-                f"[{arrow.get(message.timestamp).humanize()}]<{message.sender}>{message.message}\n"
-            )
+            out += f'[{arrow.get(message.timestamp).humanize()}]<{message.sender}>"{message.message}"\n'
 
-        out += f"[{arrow.utcnow().humanize()}]<{self.name}>"
+        out += f'[{arrow.utcnow().humanize()}]<{self.name}>"'
         return out
 
     def model_max_length(self) -> str:
@@ -108,19 +97,14 @@ class Transformer(Chatbot):
     def _generate(self, convo: Conversation) -> str:
         input_text = self._generate_model_input(convo)
 
-        while (
-            len(self.tokenizer.encode(input_text))
-            >= self.tokenizer.model_max_length - self.settings.max_outlen
-        ):
+        while len(self.tokenizer.encode(input_text)) >= self.tokenizer.model_max_length - self.settings.max_outlen:
             convo.dequeue()
             input_text = self._generate_model_input(convo)
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
         outputs = self.model.generate(
             input_ids.cuda() if self.gpu else input_ids,
-            max_length=max(
-                len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length
-            ),
+            max_length=max(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
             num_beams=1,
             do_sample=False,
             temperature=self.settings.temperature,
