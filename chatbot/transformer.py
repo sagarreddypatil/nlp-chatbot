@@ -50,7 +50,7 @@ gptJ = TransformerSettings(
     temperature=1.0,
     top_p=None,
     top_k=None,
-    repetition_penalty=1.1,
+    repetition_penalty=1.2,
 )
 
 
