@@ -119,6 +119,9 @@ class NLPChatbot(discord.Client):
             await self.handle_chat(message)
             return
 
+    async def generate_response(self, convo: Conversation) -> str:
+        return self.model.generate_response(convo)
+
     async def handle_chat(self, message: discord.Message):
         convo = self.convos[message.channel.id]
         channel: discord.TextChannel = message.channel
@@ -126,7 +129,7 @@ class NLPChatbot(discord.Client):
         err = False
         async with channel.typing():
             try:
-                response = await self.model.generate_response(convo)
+                response = await self.generate_response(convo)
             except Exception as exc:
                 logger.exception(exc)
                 err = True
