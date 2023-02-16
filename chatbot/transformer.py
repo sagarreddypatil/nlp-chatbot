@@ -50,7 +50,7 @@ gptJ = TransformerSettings(
     temperature=1.0,
     top_p=None,
     top_k=None,
-    repetition_penalty=1.1,
+    repetition_penalty=1.2,
 )
 
 
@@ -124,7 +124,7 @@ class Transformer(Chatbot):
         if firstBracket != -1 and firstClosing != -1:
             output = output[:firstBracket]
 
-        output = output[:-1]
+        output = output.split('"')[0]
 
         return output
 
