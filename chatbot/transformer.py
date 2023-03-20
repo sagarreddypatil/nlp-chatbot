@@ -53,6 +53,14 @@ gptJ = TransformerSettings(
     repetition_penalty=1.2,
 )
 
+llama7b = TransformerSettings(
+  model_name="/homes//scratch/llama_hf-7b",
+  temperature=0.7,
+  top_p=None,
+  top_k=None,
+  repetition_penalty=1.0
+)
+
 
 class Transformer(Chatbot):
     def _init_model(self, settings: TransformerSettings):
@@ -142,4 +150,4 @@ Following is a conversation between AMOGUS and others in a Discord server
 -----"""
 
 if __name__ == "__main__":
-    test(settings=gptJ, name="AMOGUS", preamble=preamble)
+    test(settings=llama7b, name="AMOGUS", preamble=preamble)
