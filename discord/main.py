@@ -10,10 +10,10 @@ import logging
 
 import sys
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
-os.environ["TRANSFORMERS_CACHE"] = "./models"
+# load_dotenv()
+# os.environ["TRANSFORMERS_CACHE"] = "./models"
 
 
 log_formatter = logging.Formatter("[%(asctime)s][%(levelname)s] %(name)s: %(message)s")
