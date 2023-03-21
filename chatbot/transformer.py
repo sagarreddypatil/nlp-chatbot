@@ -47,10 +47,10 @@ gptNeo = TransformerSettings(
 
 gptJ = TransformerSettings(
     model_name="EleutherAI/gpt-j-6B",
-    temperature=1.0,
+    temperature=0.7,
     top_p=None,
     top_k=None,
-    repetition_penalty=1.2,
+    repetition_penalty=1.0,
 )
 
 llama7b = TransformerSettings(
@@ -58,7 +58,7 @@ llama7b = TransformerSettings(
   temperature=0.7,
   top_p=None,
   top_k=None,
-  repetition_penalty=1.0
+  repetition_penalty=1.2
 )
 
 
@@ -66,37 +66,40 @@ class Transformer(Chatbot):
     def _init_model(self, settings: TransformerSettings):
         self.settings = settings
 
+        self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
+
+
+        self.endline_token = self.tokenizer.encode('\n')[-1]
+
         if torch.cuda.is_available():
             self.gpu = True
             self.model = AutoModelForCausalLM.from_pretrained(
                 settings.model_name,
                 device_map="auto",
-                revision="float16",
+                # revision="float16",
                 torch_dtype=torch.float16,
-                low_cpu_mem_usage=True,
+                # low_cpu_mem_usage=True,
                 # load_in_8bit=True,
             )
-            self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
         else:
+            print("bruh what the fuck")
             self.gpu = False
             self.model = AutoModelForCausalLM.from_pretrained(settings.model_name)
-            self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
 
         self.model.eval()
 
         if self.model.config.pad_token_id is None:
             self.model.config.pad_token_id = self.model.config.eos_token_id
 
-        self.endline_token = self.tokenizer.encode('"')[0]
         self.model_eos_str = self.tokenizer.decode([self.model.config.eos_token_id])
 
     def _generate_model_input(self, convo: Conversation) -> str:
         out = self.preamble + "\n"
         message: ChatbotMessage = None
         for message in convo.queue:
-            out += f'[{arrow.get(message.timestamp).humanize()}]<{message.sender}>"{message.message}"\n'
+            out += f'[{arrow.get(message.timestamp).humanize()}]<{message.sender}>{message.message}\n'
 
-        out += f'[{arrow.utcnow().humanize()}]<{self.name}>"'
+        out += f'[{arrow.utcnow().humanize()}]<{self.name}>'
         return out
 
     def model_max_length(self) -> str:
@@ -112,27 +115,27 @@ class Transformer(Chatbot):
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
         outputs = self.model.generate(
             input_ids.cuda() if self.gpu else input_ids,
-            max_length=max(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
+            max_length=min(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
             num_beams=1,
-            do_sample=False,
+            do_sample=True,
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,
             eos_token_id=self.endline_token,
-            pad_token_id=self.model.config.pad_token_id,
+            # pad_token_id=self.model.config.pad_token_id,
             # exponential_decay_length_penalty=(10, 0.75),
         )
+
         output = self.tokenizer.decode(outputs[0])
-        output = output.split(self.model_eos_str)[0]
+        output = output[len(input_text) + 1:]
+        output = output.split("\n")[0]
+        # output = output.split(self.model_eos_str)[0]
 
-        output = output[len(input_text) :].strip()
-        firstBracket = output.find("<")
-        firstClosing = output.find(">")
+        # firstBracket = output.find("<")
+        # firstClosing = output.find(">")
 
-        if firstBracket != -1 and firstClosing != -1:
-            output = output[:firstBracket]
-
-        output = output.split('"')[0]
+        # if firstBracket != -1 and firstClosing != -1:
+        #    output = output[:firstBracket]
 
         return output
 
