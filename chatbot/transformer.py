@@ -2,6 +2,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from .chatbot import *
 import arrow
+import os
 
 
 class TransformerSettings(NamedTuple):
@@ -54,11 +55,12 @@ gptJ = TransformerSettings(
 )
 
 llama7b = TransformerSettings(
-  model_name="/homes//scratch/llama_hf-7b",
+  model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-7b",
   temperature=0.7,
   top_p=None,
   top_k=None,
-  repetition_penalty=1.2
+  repetition_penalty=1.1,
+  max_outlen=64
 )
 
 
@@ -77,7 +79,7 @@ class Transformer(Chatbot):
                 settings.model_name,
                 device_map="auto",
                 # revision="float16",
-                torch_dtype=torch.float16,
+                # torch_dtype=torch.float16,
                 # low_cpu_mem_usage=True,
                 # load_in_8bit=True,
             )
@@ -116,15 +118,19 @@ class Transformer(Chatbot):
         outputs = self.model.generate(
             input_ids.cuda() if self.gpu else input_ids,
             max_length=min(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
-            num_beams=1,
+            # penalty_alpha=0.6,
+            # top_k=10,
+            # num_beams=1,
             do_sample=True,
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,
-            eos_token_id=self.endline_token,
+            # eos_token_id=self.endline_token,
             # pad_token_id=self.model.config.pad_token_id,
             # exponential_decay_length_penalty=(10, 0.75),
         )
+
+        del input_ids
 
         output = self.tokenizer.decode(outputs[0])
         output = output[len(input_text) + 1:]

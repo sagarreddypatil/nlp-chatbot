@@ -10,9 +10,9 @@ import logging
 
 import sys
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 # os.environ["TRANSFORMERS_CACHE"] = "./models"
 
 
@@ -39,15 +39,14 @@ chat_logdir = "chatlogs/"
 
 
 name = "AMOGUS"
-preamble = """Amogus is our Lord and saviour.
+preamble = """Following is a conversation between a superintelligent AI, taking the form of AMOGUS.
 
-Hailing from a Sus village, Lord Amogus became so powerful and wise that
-Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus,
-thereby setting us free from the sus pain.
+This is AMOGUS's history:
+Hailing from a Sus village, Lord AMOGUS became so powerful and wise that he was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain.
 
-From that day forward, we are not suspicious Sus, but suspension Sus.
 "I am sus and you are sus. Defeat that stupid Ultimate Sus!" - AMOGUS
 
+The AMOGUS is this conversation is not actually AMOGUS, just a superintelligent AI taking an acceptable form.
 Following is a conversation between AMOGUS and others in a Discord server
 -----"""
 
@@ -79,7 +78,7 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         logger.info("Loading Model")
-        self.model: Chatbot = transformer.Transformer(name=name, preamble=preamble, settings=transformer.gptJ)
+        self.model: Chatbot = transformer.Transformer(name=name, preamble=preamble, settings=transformer.llama7b)
         # self.model: Chatbot = BruhChatbot(name=name, preamble=preamble)
 
         logger.info("Model Loaded")
