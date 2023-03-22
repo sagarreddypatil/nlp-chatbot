@@ -1,4 +1,5 @@
 import torch
+from typing import List
 import numpy as np
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import StoppingCriteria, StoppingCriteriaList, MaxLengthCriteria
@@ -18,7 +19,7 @@ class TransformerSettings(NamedTuple):
 
 
 class StopSequenceCriteria(StoppingCriteria):
-    def __init__(self, stop_sequences: list[np.ndarray]):
+    def __init__(self, stop_sequences: List[np.ndarray]):
         self.stop_sequences = stop_sequences
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
@@ -120,7 +121,7 @@ class Transformer(Chatbot):
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
 
-        stopping_critera: StoppingCriteriaList = [StopSequenceCriteria(stop_sequences), MaxLengthCriteria(len(input_ids[0]) + self.settings.max_outlen)]
+        stopping_criteria: StoppingCriteriaList = [StopSequenceCriteria(self.stop_sequences), MaxLengthCriteria(len(input_ids[0]) + self.settings.max_outlen)]
         outputs = self.model.generate(
             input_ids.cuda() if self.gpu else input_ids,
             # max_length=min(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
@@ -131,7 +132,7 @@ class Transformer(Chatbot):
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,
-            stopping_critera=stopping_critera,
+            stopping_criteria=stopping_criteria,
             # eos_token_id=self.endline_token,
             # pad_token_id=self.model.config.pad_token_id,
             # exponential_decay_length_penalty=(10, 0.75),
