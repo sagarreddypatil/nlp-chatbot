@@ -1,5 +1,8 @@
 import torch
+import numpy as np
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import StoppingCriteria, StoppingCriteriaList, MaxLengthCriteria
+from transformers import PreTrainedTokenizer
 from .chatbot import *
 import arrow
 import os
@@ -12,6 +15,18 @@ class TransformerSettings(NamedTuple):
     top_k: int
     repetition_penalty: float
     max_outlen: int = 12
+
+
+class StopSequenceCriteria(StoppingCriteria):
+    def __init__(self, stop_sequences: list[np.ndarray]):
+        self.stop_sequences = stop_sequences
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
+        for seq in self.stop_sequences:
+            if np.all(input_ids.cpu().numpy()[-len(seq) :] == seq):
+                return True
+
+        return False
 
 
 gpt2 = TransformerSettings(model_name="gpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33)
@@ -54,14 +69,7 @@ gptJ = TransformerSettings(
     repetition_penalty=1.0,
 )
 
-llama7b = TransformerSettings(
-  model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-7b",
-  temperature=0.7,
-  top_p=None,
-  top_k=None,
-  repetition_penalty=1.1,
-  max_outlen=64
-)
+llama7b = TransformerSettings(model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-7b", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=64)
 
 
 class Transformer(Chatbot):
@@ -70,8 +78,10 @@ class Transformer(Chatbot):
 
         self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
 
+        offset = 1 if "llama" in settings.model_name.lower() else 0  # llama tokenizer adds a 1 to the start of the sequence
 
-        self.endline_token = self.tokenizer.encode('\n')[-1]
+        stop_sequences = ["\n<"]
+        self.stop_sequences = [self.tokenizer.encode(seq, return_tensors="pt")[offset:] for seq in stop_sequences]
 
         if torch.cuda.is_available():
             self.gpu = True
@@ -84,24 +94,18 @@ class Transformer(Chatbot):
                 # load_in_8bit=True,
             )
         else:
-            print("bruh what the fuck")
             self.gpu = False
             self.model = AutoModelForCausalLM.from_pretrained(settings.model_name)
 
         self.model.eval()
 
-        if self.model.config.pad_token_id is None:
-            self.model.config.pad_token_id = self.model.config.eos_token_id
-
-        self.model_eos_str = self.tokenizer.decode([self.model.config.eos_token_id])
-
     def _generate_model_input(self, convo: Conversation) -> str:
         out = self.preamble + "\n"
         message: ChatbotMessage = None
         for message in convo.queue:
-            out += f'[{arrow.get(message.timestamp).humanize()}]<{message.sender}>{message.message}\n'
+            out += f"[{arrow.get(message.timestamp).humanize()}]<{message.sender}>{message.message}\n"
 
-        out += f'[{arrow.utcnow().humanize()}]<{self.name}>'
+        out += f"[{arrow.utcnow().humanize()}]<{self.name}>"
         return out
 
     def model_max_length(self) -> str:
@@ -115,9 +119,11 @@ class Transformer(Chatbot):
             input_text = self._generate_model_input(convo)
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
+
+        stopping_critera: StoppingCriteriaList = [StopSequenceCriteria(stop_sequences), MaxLengthCriteria(len(input_ids[0]) + self.settings.max_outlen)]
         outputs = self.model.generate(
             input_ids.cuda() if self.gpu else input_ids,
-            max_length=min(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
+            # max_length=min(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
             # penalty_alpha=0.6,
             # top_k=10,
             # num_beams=1,
@@ -125,6 +131,7 @@ class Transformer(Chatbot):
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             repetition_penalty=self.settings.repetition_penalty,
+            stopping_critera=stopping_critera,
             # eos_token_id=self.endline_token,
             # pad_token_id=self.model.config.pad_token_id,
             # exponential_decay_length_penalty=(10, 0.75),
@@ -133,12 +140,8 @@ class Transformer(Chatbot):
         del input_ids
 
         output = self.tokenizer.decode(outputs[0])
-        output = output[len(input_text) + 1:]
+        output = output[len(input_text) + 1 :]
         output = output.split("\n")[0]
-        # output = output.split(self.model_eos_str)[0]
-
-        # firstBracket = output.find("<")
-        # firstClosing = output.find(">")
 
         # if firstBracket != -1 and firstClosing != -1:
         #    output = output[:firstBracket]
