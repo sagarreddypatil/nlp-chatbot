@@ -20,17 +20,23 @@ class TransformerSettings(NamedTuple):
 
 
 class StopSequenceCriteria(StoppingCriteria):
-    def __init__(self, pattern: re.Pattern, offset: int, tokenizer):
+    def __init__(self, pattern: re.Pattern, offset: int, tokenizer, update: UpdateFunc):
         self.pattern = pattern
         self.offset = offset
         self.tokenizer = tokenizer
+        self.update = update
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
-        print(self.tokenizer.decode(input_ids[0])[self.offset + 1:])
-        return re.search(self.pattern, self.tokenizer.decode(input_ids[0])[self.offset + 1:]) is not None
+        new_text = self.tokenizer.decode(input_ids[0])[self.offset + 1 :]
+        valid = re.search(self.pattern, new_text) is not None
+
+        if valid:
+            self.update(new_text)
+
+        return valid
 
 
-gpt2 = TransformerSettings(model_name="gpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33)
+gpt2 = TransformerSettings(model_name="gpt2", temperature=0.8, top_p=1.0, top_k=None, repetition_penalty=1.2)
 
 gpt2Medium = TransformerSettings(model_name="gpt2-medium", temperature=1.0, top_p=0.90, top_k=None, repetition_penalty=1.33)
 
@@ -117,7 +123,7 @@ class Transformer(Chatbot):
     def model_max_length(self) -> str:
         return str(self.tokenizer.model_max_length)
 
-    def _generate(self, convo: Conversation) -> str:
+    def _generate(self, convo: Conversation, update: UpdateFunc) -> str:
         input_text = self._generate_model_input(convo)
 
         while len(self.tokenizer.encode(input_text)) >= self.tokenizer.model_max_length - self.settings.max_outlen:
@@ -126,7 +132,10 @@ class Transformer(Chatbot):
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
 
-        stopping_criteria = StopSequenceCriteria(self.stop_pattern, len(input_text), self.tokenizer)
+        def _update(new_text: str):
+            update(new_text)
+
+        stopping_criteria = StopSequenceCriteria(self.stop_pattern, len(input_text), self.tokenizer, _update)
         outputs = self.model.generate(
             input_ids.cuda() if self.gpu else input_ids,
             # max_length=min(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
@@ -146,14 +155,14 @@ class Transformer(Chatbot):
 
         del input_ids
 
-        output = self.tokenizer.decode(outputs[0])
-        output = output[len(input_text) + 1 :]
-        output = re.split(self.stop_pattern, output)[0]
+        # output = self.tokenizer.decode(outputs[0])
+        # output = output[len(input_text) + 1 :]
+        # output = re.split(self.stop_pattern, output)[0]
+
+        # return output
 
         # if firstBracket != -1 and firstClosing != -1:
         #    output = output[:firstBracket]
-
-        return output
 
 
 preamble = """Following is a conversation between a superintelligent AI, taking the form of AMOGUS.

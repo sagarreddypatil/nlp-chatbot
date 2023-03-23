@@ -3,6 +3,9 @@ import os
 import re
 import codecs
 import logging
+from typing import Callable
+
+UpdateFunc = Callable[[str], None]
 
 logger = logging.getLogger(__name__)
 
@@ -32,23 +35,25 @@ class Chatbot(object):
     def _init_model(self, **kwargs):
         pass
 
-    def generate_response(self, convo: Conversation) -> str:
-        response = self._generate(convo)
-        if has_slur(response):
-            logger.info(f"Generated response containing slur: {response}")
-            return
+    def generate_response(self, convo: Conversation, update: UpdateFunc):
+        def _update(response: str):
+            if has_slur(response):
+                logger.info(f"Generated response containing slur: {response}")
+                return
 
-        if response != "":
-            convo.add_message(ChatbotMessage(self.name, response))
-            return response
+            if response != "":
+                convo.add_message(ChatbotMessage(self.name, response))
+                update(response)
 
-    def _generate(self) -> str:
+        self._generate(convo, _update)
+
+    def _generate(self, convo: Conversation, update: UpdateFunc):
         pass
 
 
 class BruhChatbot(Chatbot):
-    def _generate(self, convo: Conversation) -> str:
-        return "Bruh"
+    def _generate(self, convo: Conversation, update: Callable[[str], None]):
+        update("bruh")
 
     def _generate_model_input(self, convo: Conversation) -> str:
         return ""
@@ -73,8 +78,13 @@ def test(**kwargs):
         try:
             message = input(f"{name}: ")
             conversation.add_message(ChatbotMessage(name, message))
-            response = chatbot.generate_response(conversation)
-            print(f"{chatbot.name}: {response}")
+
+            def update(response: str):
+                print(f"\r{chatbot.name}: {response}", end="")
+
+            chatbot.generate_response(conversation, update)
+            print("")
+
         except KeyboardInterrupt:
             break
 
