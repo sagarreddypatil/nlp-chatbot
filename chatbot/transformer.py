@@ -90,7 +90,7 @@ class Transformer(Chatbot):
 
         self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
 
-        self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n\n")
+        self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n\n+|\n-+")
 
         if torch.cuda.is_available():
             self.gpu = True
