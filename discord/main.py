@@ -128,19 +128,38 @@ class NLPChatbot(discord.Client):
         convo = self.convos[message.channel.id]
         channel: discord.TextChannel = message.channel
 
-        err = False
-        async with channel.typing():
-            try:
-                response = await self.generate_response(convo)
-            except Exception as exc:
-                logger.exception(exc)
-                err = True
+        message: discord.Message = await channel.send("Thinking...")
 
-        if not err:
-            if response:
-                await channel.send(response)
-        else:
+        def update(response: str):
+            await message.edit(content=response)
+
+        err = False
+        final_response = ""
+        try:
+            final_response = await self.generate_response(convo)
+        except Exception as exc:
+            logger.exception(exc)
+            err = True
+
+        if err or not final_response:
+            await message.delete()
+
+        if err:
             await channel.send(embed=self.create_embed(self.user, title="Error", description="Internal error, better luck next message"))
+
+        # err = False
+        # async with channel.typing():
+        #     try:
+        #         response = await self.generate_response(convo)
+        #     except Exception as exc:
+        #         logger.exception(exc)
+        #         err = True
+
+        # if not err:
+        #     if response:
+        #         await channel.send(response)
+        # else:
+        #     await channel.send(embed=self.create_embed(self.user, title="Error", description="Internal error, better luck next message"))
 
     async def handle_cmd(self, message: discord.Message):
         content = shlex.split(message.clean_content)[1:]
