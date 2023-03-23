@@ -1,4 +1,5 @@
 import re
+import gc
 import torch
 from typing import List
 import numpy as np
@@ -155,6 +156,9 @@ class Transformer(Chatbot):
         )
 
         del input_ids
+        gc.collect()
+        torch.cuda.empty_cache()
+        
 
         # output = self.tokenizer.decode(outputs[0])
         # output = output[len(input_text) + 1 :]
