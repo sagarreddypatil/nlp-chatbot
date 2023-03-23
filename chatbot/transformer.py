@@ -30,8 +30,12 @@ class StopSequenceCriteria(StoppingCriteria):
         new_text = self.tokenizer.decode(input_ids[0])[self.offset + 1 :]
         invalid = re.search(self.pattern, new_text) is not None
 
-        if not invalid:
-            self.update(new_text)
+        # not checking for invalid here because doing so leaves it with a single trailing endline
+        # which cannot be removed because only double endline is considered an invalid sequence
+        # if we don't check for invalid, it'll still terminate generation after an invalid is
+        # reached but it can be properly filtered out in the _generate function beacuse the
+        # double endline can be easily detected
+        self.update(new_text)
 
         return invalid
 
@@ -84,8 +88,6 @@ class Transformer(Chatbot):
         self.settings = settings
 
         self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
-
-        offset = 1 if "llama" in settings.model_name.lower() else 0  # llama tokenizer adds a 1 to the start of the sequence
 
         self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n\n")
 
