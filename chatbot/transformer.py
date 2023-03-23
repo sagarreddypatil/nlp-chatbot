@@ -20,13 +20,14 @@ class TransformerSettings(NamedTuple):
 
 
 class StopSequenceCriteria(StoppingCriteria):
-    def __init__(self, regex: re.Pattern):
-        self.pattern = regex
+    def __init__(self, pattern: re.Pattern, offset: int, tokenizer):
+        self.pattern = pattern
+        self.offset = offset
+        self.tokenizer = tokenizer
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
-        print(input_ids.shape)
-        return False
-        # return re.search
+        print(self.tokenizer.decode(input_ids[0])[self.offset + 1:])
+        return re.search(self.pattern, self.tokenizer.decode(input_ids[0])[self.offset + 1:]) is not None
 
 
 gpt2 = TransformerSettings(model_name="gpt2", temperature=1.0, top_p=0.9, top_k=None, repetition_penalty=1.33)
@@ -80,9 +81,9 @@ class Transformer(Chatbot):
 
         offset = 1 if "llama" in settings.model_name.lower() else 0  # llama tokenizer adds a 1 to the start of the sequence
 
-        stop_sequences = ["\n\[", "\n\n", "\n<"]
-        self.stop_sequences = [self.tokenizer.encode(seq, return_tensors="pt")[offset:] for seq in stop_sequences]
-        self.stop_seq_regex = re.compile("|".join(stop_sequences))
+        stop_sequences = ["\n\[", "\n.*\[.+]<.*>"]
+        # self.stop_sequences = [self.tokenizer.encode(seq, return_tensors="pt")[offset:] for seq in stop_sequences]
+        self.stop_pattern = re.compile("|".join(stop_sequences))
 
         if torch.cuda.is_available():
             self.gpu = True
@@ -124,7 +125,7 @@ class Transformer(Chatbot):
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
 
-        stopping_criteria = StopSequenceCriteria(self.stop_sequences)
+        stopping_criteria = StopSequenceCriteria(self.stop_pattern, len(input_text), self.tokenizer)
         outputs = self.model.generate(
             input_ids.cuda() if self.gpu else input_ids,
             # max_length=min(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
@@ -146,7 +147,7 @@ class Transformer(Chatbot):
 
         output = self.tokenizer.decode(outputs[0])
         output = output[len(input_text) + 1 :]
-        output = re.split(self.stop_seq_regex, output)[0]
+        output = re.split(self.stop_pattern, output)[0]
 
         # if firstBracket != -1 and firstClosing != -1:
         #    output = output[:firstBracket]
