@@ -28,12 +28,12 @@ class StopSequenceCriteria(StoppingCriteria):
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
         new_text = self.tokenizer.decode(input_ids[0])[self.offset + 1 :]
-        valid = re.search(self.pattern, new_text) is not None
+        invalid = re.search(self.pattern, new_text) is not None
 
-        if valid:
+        if not invalid:
             self.update(new_text)
 
-        return valid
+        return invalid
 
 
 gpt2 = TransformerSettings(model_name="gpt2", temperature=0.8, top_p=1.0, top_k=None, repetition_penalty=1.2)
@@ -132,8 +132,8 @@ class Transformer(Chatbot):
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
 
-        def _update(new_text: str):
-            update(new_text)
+        def _update(output: str):
+            update(output)
 
         stopping_criteria = StopSequenceCriteria(self.stop_pattern, len(input_text), self.tokenizer, _update)
         outputs = self.model.generate(

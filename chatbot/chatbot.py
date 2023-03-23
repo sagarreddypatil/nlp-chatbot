@@ -80,7 +80,7 @@ def test(**kwargs):
             conversation.add_message(ChatbotMessage(name, message))
 
             def update(response: str):
-                print(f"\r{chatbot.name}: {response}", end="")
+                print(f"\r{chatbot.name}: {response}", end="", flush=True)
 
             chatbot.generate_response(conversation, update)
             print("")
