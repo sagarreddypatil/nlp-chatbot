@@ -82,7 +82,7 @@ class Transformer(Chatbot):
 
         offset = 1 if "llama" in settings.model_name.lower() else 0  # llama tokenizer adds a 1 to the start of the sequence
 
-        stop_sequences = ["\n<"]
+        stop_sequences = ["\n[", "\n\n", "\n<"]
         self.stop_sequences = [self.tokenizer.encode(seq, return_tensors="pt")[offset:] for seq in stop_sequences]
         self.stop_seq_regex = re.compile("|".join(stop_sequences))
 
@@ -102,13 +102,16 @@ class Transformer(Chatbot):
 
         self.model.eval()
 
+    def format_time(self, timestamp: int) -> str:
+        return arrow.get(timestamp).format("HH:mm UTC")
+
     def _generate_model_input(self, convo: Conversation) -> str:
         out = self.preamble + "\n"
         message: ChatbotMessage = None
         for message in convo.queue:
-            out += f"[{arrow.get(message.timestamp).humanize()}]<{message.sender}>{message.message}\n"
+            out += f"[{format_time(message.timestamp)}]<{message.sender}>{message.message}\n"
 
-        out += f"[{arrow.utcnow().humanize()}]<{self.name}>"
+        out += f"[{format_time(arrow.utcnow())}]<{self.name}>"
         return out
 
     def model_max_length(self) -> str:
