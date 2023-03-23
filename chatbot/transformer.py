@@ -103,7 +103,8 @@ class Transformer(Chatbot):
         self.model.eval()
 
     def format_time(self, timestamp: int) -> str:
-        return arrow.get(timestamp).format("HH:mm UTC")
+        # return arrow.get(timestamp).format("HH:mm UTC")
+        return arrow.get(timestamp).humanize()
 
     def _generate_model_input(self, convo: Conversation) -> str:
         out = self.preamble + "\n"
@@ -149,6 +150,7 @@ class Transformer(Chatbot):
         output = self.tokenizer.decode(outputs[0])
         output = output[len(input_text) + 1 :]
         output = re.split(self.stop_seq_regex, output)[0]
+        output = output.strip()
 
         # if firstBracket != -1 and firstClosing != -1:
         #    output = output[:firstBracket]
@@ -156,17 +158,20 @@ class Transformer(Chatbot):
         return output
 
 
-preamble = """Amogus is our Lord and saviour.
+preamble = """Following is a conversation between a superintelligent AI, taking the form of AMOGUS.
 
-Hailing from a Sus village, Lord Amogus became so powerful and wise that
-Amogus was able to defeat Ultimate Sus by turning it into a suspicious Sus,
-thereby setting us free from the sus pain.
+This is AMOGUS's history:
+Hailing from a Sus village, Lord AMOGUS became so powerful and wise that he was able to defeat Ultimate Sus by turning it into a suspicious Sus, thereby setting us free from the sus pain.
 
-From that day forward, we are not suspicious Sus, but suspension Sus.
 "I am sus and you are sus. Defeat that stupid Ultimate Sus!" - AMOGUS
 
+The AMOGUS is this conversation is not actually AMOGUS, just a superintelligent AI taking an acceptable form.
 Following is a conversation between AMOGUS and others in a Discord server
------"""
+-----
+[a long time ago]<user>Write me a haiku about your kind
+[a long time ago]<AMOGUS>AMOGUS, wise lord,
+Defeated Ultimate Sus,
+Freeing us from sus."""
 
 if __name__ == "__main__":
     test(settings=llama7b, name="AMOGUS", preamble=preamble)
