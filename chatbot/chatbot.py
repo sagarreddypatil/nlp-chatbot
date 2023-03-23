@@ -84,13 +84,18 @@ def test(**kwargs):
         try:
             message = input(f"{name}: ")
             conversation.add_message(ChatbotMessage(name, message))
+            print(f"{chatbot.name}: ", end="")
 
+            _response = ""
             def update(response: str):
-                print(f"\r{chatbot.name}: {response}", end="", flush=True)
+                nonlocal _response
+                new_text = response[len(_response): ]
+
+                _response = response
+
+                print(new_text, end="", flush=True)
 
             final_response = chatbot.generate_response(conversation, update)
-            print("")
-
         except KeyboardInterrupt:
             break
 
