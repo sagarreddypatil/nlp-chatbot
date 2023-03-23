@@ -78,7 +78,7 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         logger.info("Loading Model")
-        self.model: Chatbot = transformer.Transformer(name=name, preamble=preamble, settings=transformer.llama7b)
+        self.model: Chatbot = transformer.Transformer(name=name, preamble=preamble, settings=transformer.llama13b)
         # self.model: Chatbot = BruhChatbot(name=name, preamble=preamble)
 
         logger.info("Model Loaded")

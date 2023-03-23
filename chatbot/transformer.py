@@ -82,6 +82,7 @@ gptJ = TransformerSettings(
 )
 
 llama7b = TransformerSettings(model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-7b", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=64)
+llama13b = TransformerSettings(model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-13b", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=64)
 
 
 class Transformer(Chatbot):
@@ -90,7 +91,7 @@ class Transformer(Chatbot):
 
         self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
 
-        self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n\n+|\n-+")
+        self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n-+|\n\\[a-zA-Z]+{")
 
         if torch.cuda.is_available():
             self.gpu = True
@@ -183,4 +184,4 @@ The AMOGUS is this conversation is not actually AMOGUS, just a superintelligent 
 -----"""
 
 if __name__ == "__main__":
-    test(settings=llama7b, name="AMOGUS", preamble=preamble)
+    test(settings=llama13b, name="AMOGUS", preamble=preamble)
