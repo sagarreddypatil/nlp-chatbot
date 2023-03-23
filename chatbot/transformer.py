@@ -1,3 +1,4 @@
+import re
 import torch
 from typing import List
 import numpy as np
@@ -83,6 +84,7 @@ class Transformer(Chatbot):
 
         stop_sequences = ["\n<"]
         self.stop_sequences = [self.tokenizer.encode(seq, return_tensors="pt")[offset:] for seq in stop_sequences]
+        self.stop_seq_regex = re.compile("|".join(stop_sequences))
 
         if torch.cuda.is_available():
             self.gpu = True
@@ -143,7 +145,7 @@ class Transformer(Chatbot):
 
         output = self.tokenizer.decode(outputs[0])
         output = output[len(input_text) + 1 :]
-        output = output.split("\n")[0]
+        output = re.split(self.stop_seq_regex, output)[0]
 
         # if firstBracket != -1 and firstClosing != -1:
         #    output = output[:firstBracket]
