@@ -39,6 +39,7 @@ class Chatbot(object):
         _response = ""
 
         def _update(response: str):
+            nonlocal _response
             if has_slur(response):
                 logger.info(f"Generated response containing slur: {response}")
                 return
