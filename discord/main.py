@@ -131,7 +131,7 @@ class NLPChatbot(discord.Client):
         message: discord.Message = await channel.send("Thinking...")
 
         def update(response: str):
-            await message.edit(content=response)
+            self.loop.create_task(message.edit(content=response))
 
         err = False
         final_response = ""
