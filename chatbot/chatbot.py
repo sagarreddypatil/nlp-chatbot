@@ -35,17 +35,22 @@ class Chatbot(object):
     def _init_model(self, **kwargs):
         pass
 
-    def generate_response(self, convo: Conversation, update: UpdateFunc):
+    def generate_response(self, convo: Conversation, update: UpdateFunc) -> str:
+        _response = ""
+
         def _update(response: str):
             if has_slur(response):
                 logger.info(f"Generated response containing slur: {response}")
                 return
 
             if response != "":
-                convo.add_message(ChatbotMessage(self.name, response))
+                _response = response
                 update(response)
 
         self._generate(convo, _update)
+        convo.add_message(ChatbotMessage(self.name, response))
+
+        return _response
 
     def _generate(self, convo: Conversation, update: UpdateFunc):
         pass
@@ -82,7 +87,7 @@ def test(**kwargs):
             def update(response: str):
                 print(f"\r{chatbot.name}: {response}", end="", flush=True)
 
-            chatbot.generate_response(conversation, update)
+            final_response = chatbot.generate_response(conversation, update)
             print("")
 
         except KeyboardInterrupt:

@@ -133,6 +133,7 @@ class Transformer(Chatbot):
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
 
         def _update(output: str):
+            output = re.split(self.stop_pattern, output)[0]
             update(output)
 
         stopping_criteria = StopSequenceCriteria(self.stop_pattern, len(input_text), self.tokenizer, _update)
