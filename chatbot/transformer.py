@@ -87,9 +87,7 @@ class Transformer(Chatbot):
 
         offset = 1 if "llama" in settings.model_name.lower() else 0  # llama tokenizer adds a 1 to the start of the sequence
 
-        stop_sequences = [r"\n\[", r"\n.*\[.+]<.*>", r"\n\n"]
-        # self.stop_sequences = [self.tokenizer.encode(seq, return_tensors="pt")[offset:] for seq in stop_sequences]
-        self.stop_pattern = re.compile("|".join(stop_sequences))
+        self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n\n")
 
         if torch.cuda.is_available():
             self.gpu = True
