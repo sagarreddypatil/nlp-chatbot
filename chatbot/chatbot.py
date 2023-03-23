@@ -48,7 +48,7 @@ class Chatbot(object):
                 update(response)
 
         self._generate(convo, _update)
-        convo.add_message(ChatbotMessage(self.name, response))
+        convo.add_message(ChatbotMessage(self.name, _response))
 
         return _response
 
