@@ -121,31 +121,35 @@ class NLPChatbot(discord.Client):
             await self.handle_chat(message)
             return
 
-    async def generate_response(self, convo: Conversation) -> str:
-        return self.model.generate_response(convo)
+    # async def generate_response(self, convo: Conversation) -> str:
+    #     return self.model.generate_response(convo)
 
     async def handle_chat(self, message: discord.Message):
         convo = self.convos[message.channel.id]
         channel: discord.TextChannel = message.channel
 
-        message: discord.Message = await channel.send("Thinking...")
+        # message: discord.Message = await channel.send("Thinking...")
 
         def update(response: str):
-            self.loop.create_task(message.edit(content=response))
+            pass
+            # self.loop.create_task(message.edit(content=response))
 
         err = False
         final_response = ""
-        try:
-            final_response = await self.generate_response(convo)
-        except Exception as exc:
-            logger.exception(exc)
-            err = True
+        async with channel.typing():
+            try:
+                # final_response = await self.generate_response(convo)
+                final_response = self.model.generate_response(convo, update)
+            except Exception as exc:
+                logger.exception(exc)
+                err = True
 
-        if err or not final_response:
-            await message.delete()
+        # await message.delete()
 
         if err:
             await channel.send(embed=self.create_embed(self.user, title="Error", description="Internal error, better luck next message"))
+        elif final_response:
+            await channel.send(final_response)
 
         # err = False
         # async with channel.typing():
