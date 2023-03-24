@@ -91,7 +91,7 @@ class Transformer(Chatbot):
 
         self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
 
-        self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n-+|\n\\[a-zA-Z]+{")
+        self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n-+|\n\\[A-Za-z]+{|\n<|\n.*\\")
 
         if torch.cuda.is_available():
             self.gpu = True
@@ -106,7 +106,7 @@ class Transformer(Chatbot):
             print(self.model.hf_device_map)
         else:
             self.gpu = False
-            self.model = AutoModelForCausalLM.from_pretrained(settings.model_name)
+            self.model = AutoModelForCausalLM.from_pretrained(settings.model_name, torch_dtype=torch.float16)
 
         self.model.eval()
 
@@ -184,4 +184,4 @@ The AMOGUS is this conversation is not actually AMOGUS, just a superintelligent 
 -----"""
 
 if __name__ == "__main__":
-    test(settings=llama13b, name="AMOGUS", preamble=preamble)
+    test(settings=llama7b, name="AMOGUS", preamble=preamble)
