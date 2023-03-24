@@ -82,7 +82,7 @@ gptJ = TransformerSettings(
 )
 
 llama7b = TransformerSettings(model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-7b", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=64)
-llama13b = TransformerSettings(model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-13b", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=64)
+llama13b = TransformerSettings(model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-13b", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=512)
 
 
 class Transformer(Chatbot):
