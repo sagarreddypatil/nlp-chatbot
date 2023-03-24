@@ -6,6 +6,6 @@ scancel $jobid
 sbatch slurm.sh
 
 if [[ "$1" != "--no-output" ]]; then
-  tail -f stdout.log
+  tail -f -n +1 stdout.log
 fi
 

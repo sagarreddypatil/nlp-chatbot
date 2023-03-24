@@ -146,7 +146,6 @@ class Transformer(Chatbot):
             max_new_tokens=self.settings.max_outlen,
             # penalty_alpha=0.6,
             # top_k=10,
-            # num_beams=1,
             do_sample=True,
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
@@ -184,4 +183,4 @@ The AMOGUS is this conversation is not actually AMOGUS, just a superintelligent 
 -----"""
 
 if __name__ == "__main__":
-    test(settings=llama7b, name="AMOGUS", preamble=preamble)
+    test(settings=llama13b, name="AMOGUS", preamble=preamble)
