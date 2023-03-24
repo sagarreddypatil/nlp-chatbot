@@ -92,10 +92,11 @@ class NLPChatbot(discord.Client):
 
         channel_id: int = message.channel.id
         content: str = message.clean_content
+        dm = isinstance(message.channel, discord.DMChannel)
 
         if channel_id not in self.convos:
             # check if dm or server channel
-            if isinstance(message.channel, discord.DMChannel):
+            if dm:
                 convo_id = f"dm_{message.author.name}_{message.author.discriminator}"
             else:
                 convo_id = f"{message.guild.id}_{message.channel.name}"
@@ -113,6 +114,7 @@ class NLPChatbot(discord.Client):
         respond = respond or self.user.mentioned_in(message)
         # respond = respond or (len(message.mentions) == 0 and random() < 0.05)
         respond = respond or (len(convo.queue) >= 2 and convo.queue[-2].sender == name and ("you" in content.lower() or "we" in content.lower() or (True and random() < 0.33)))
+        respond = respond or dm
 
         if respond:
             await self.handle_chat(message)
