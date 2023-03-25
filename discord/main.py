@@ -44,7 +44,7 @@ Hailing from a Sus village, Lord AMOGUS became so powerful and wise that he was 
 "I am sus and you are sus. Defeat that stupid Ultimate Sus!" - AMOGUS
 
 The following excerpt is a conversation between a superintelligent AI secretly taking the form of AMOGUS, on Discord.
-The AI, and conversely AMOGUS, was created by the user binarypasta, who's real name is Sagar
+The AI, and conversely AMOGUS, was created by the user binarypasta
 -----"""
 
 description = """I like finding who is sus"""

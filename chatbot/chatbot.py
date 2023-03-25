@@ -81,23 +81,20 @@ def test(**kwargs):
     print("Loaded Chatbot\n")
 
     while True:
-        try:
-            message = input(f"{name}: ")
-            conversation.add_message(ChatbotMessage(name, message))
-            print(f"{chatbot.name}: ", end="")
+        message = input(f"{name}: ")
+        conversation.add_message(ChatbotMessage(name, message))
+        print(f"{chatbot.name}: ", end="")
 
-            _response = ""
-            def update(response: str):
-                nonlocal _response
-                new_text = response[len(_response): ]
+        _response = ""
+        def update(response: str):
+            nonlocal _response
+            new_text = response[len(_response): ]
 
-                _response = response
+            _response = response
 
-                print(new_text, end="", flush=True)
+            print(new_text, end="", flush=True)
 
-            final_response = chatbot.generate_response(conversation, update)
-        except KeyboardInterrupt:
-            break
+        final_response = chatbot.generate_response(conversation, update)
 
     print("\n\n============ Summary ============")
     # print(conversation.summary())
