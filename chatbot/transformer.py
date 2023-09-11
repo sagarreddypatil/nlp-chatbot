@@ -99,7 +99,7 @@ class Transformer(Chatbot):
             self.gpu = True
             self.model = AutoModelForCausalLM.from_pretrained(
                 settings.model_name,
-                device_map="balanced_low_0",
+                device_map="auto",
                 # revision="float16",
                 torch_dtype=torch.float16,
                 # low_cpu_mem_usage=True,
