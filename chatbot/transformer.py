@@ -33,7 +33,9 @@ class StopSequenceCriteria(StoppingCriteria):
         self.update = update
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
-        new_text = self.tokenizer.decode(input_ids[0])[self.offset + 1 :]
+        new_text = self.tokenizer.decode(input_ids[0][1:])
+        # new_text = new_text[self.offset + 1: ]
+        new_text = new_text[self.offset: ]
         invalid = re.search(self.pattern, new_text) is not None
 
         # not checking for invalid here because doing so leaves it with a single trailing endline
