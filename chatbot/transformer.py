@@ -91,7 +91,7 @@ class Transformer(Chatbot):
     def _init_model(self, settings: TransformerSettings):
         self.settings = settings
 
-        self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name, legacy=False)
 
         self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n-+|\n\\[A-Za-z]+{|\n<|\n.*\\")
 
