@@ -9,6 +9,11 @@ from transformers import PreTrainedTokenizer
 from .chatbot import *
 import arrow
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 
 class TransformerSettings(NamedTuple):
@@ -83,6 +88,7 @@ gptJ = TransformerSettings(
 
 llama7b = TransformerSettings(model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-7b", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=64)
 llama13b = TransformerSettings(model_name=f"{os.path.expanduser('~')}/scratch/llama_hf-13b", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=512)
+llama27b = TransformerSettings(model_name="meta-llama/Llama-2-7b-hf", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=512)
 
 alpaca7b = TransformerSettings(model_name=f"chavinlo/alpaca-native", temperature=0.7, top_p=None, top_k=None, repetition_penalty=1.1, max_outlen=512)
 
@@ -91,7 +97,7 @@ class Transformer(Chatbot):
     def _init_model(self, settings: TransformerSettings):
         self.settings = settings
 
-        self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name, legacy=False)
+        self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name, legacy=False, token=HF_TOKEN)
 
         self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n-+|\n\\[A-Za-z]+{|\n<|\n.*\\")
 
@@ -104,11 +110,12 @@ class Transformer(Chatbot):
                 torch_dtype=torch.float16,
                 # low_cpu_mem_usage=True,
                 # load_in_8bit=True,
+                token=HF_TOKEN,
             )
             print(self.model.hf_device_map)
         else:
             self.gpu = False
-            self.model = AutoModelForCausalLM.from_pretrained(settings.model_name, torch_dtype=torch.float16)
+            self.model = AutoModelForCausalLM.from_pretrained(settings.model_name, torch_dtype=torch.float16, token=HF_TOKEN)
 
         self.model.eval()
 
@@ -184,4 +191,4 @@ The AMOGUS is this conversation is not actually AMOGUS, just a superintelligent 
 -----"""
 
 if __name__ == "__main__":
-    test(settings=alpaca7b, name="AMOGUS", preamble=preamble)
+    test(settings=llama27b, name="AMOGUS", preamble=preamble)
