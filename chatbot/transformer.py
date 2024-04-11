@@ -6,6 +6,7 @@ import numpy as np
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import StoppingCriteria, StoppingCriteriaList, MaxLengthCriteria
 from transformers import PreTrainedTokenizer
+from transformers import SinkCache
 from .chatbot import *
 import arrow
 import os
@@ -100,9 +101,9 @@ class Transformer(Chatbot):
         self.settings = settings
 
         self.tokenizer = AutoTokenizer.from_pretrained(settings.model_name, legacy=False, token=HF_TOKEN)
-
         self.stop_pattern = re.compile(r"\n\[|\n.*\[.+\]<.*>|\n-+|\n\\[A-Za-z]+{|\n<|\n.*\\")
 
+        self.model: AutoModelForCausalLM = None
         if torch.cuda.is_available():
             self.gpu = True
             self.model = AutoModelForCausalLM.from_pretrained(
@@ -119,6 +120,7 @@ class Transformer(Chatbot):
             self.gpu = False
             self.model = AutoModelForCausalLM.from_pretrained(settings.model_name, torch_dtype=torch.float16, token=HF_TOKEN)
 
+        self.cache = SinkCache(window_length=self.model.model_max_length, num_sink_tokens=4)
         self.model.eval()
 
     def format_time(self, timestamp: int) -> str:
@@ -140,9 +142,9 @@ class Transformer(Chatbot):
     def _generate(self, convo: Conversation, update: UpdateFunc) -> str:
         input_text = self._generate_model_input(convo)
 
-        while len(self.tokenizer.encode(input_text)) >= self.tokenizer.model_max_length - self.settings.max_outlen:
-            convo.dequeue()
-            input_text = self._generate_model_input(convo)
+        # while len(self.tokenizer.encode(input_text)) >= self.tokenizer.model_max_length - self.settings.max_outlen:
+        #     convo.dequeue()
+        #     input_text = self._generate_model_input(convo)
 
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt")
 
@@ -154,7 +156,7 @@ class Transformer(Chatbot):
         outputs = self.model.generate(
             input_ids.cuda() if self.gpu else input_ids,
             # max_length=min(len(input_ids[0]) + self.settings.max_outlen, self.tokenizer.model_max_length),
-            max_new_tokens=self.settings.max_outlen,
+            # max_new_tokens=self.settings.max_outlen,
             # penalty_alpha=0.6,
             # top_k=10,
             do_sample=True,
@@ -165,6 +167,8 @@ class Transformer(Chatbot):
             # eos_token_id=self.endline_token,
             # pad_token_id=self.model.config.pad_token_id,
             # exponential_decay_length_penalty=(10, 0.75),
+            use_cache=True,
+            past_key_values=self.cache
         )
 
         del input_ids
