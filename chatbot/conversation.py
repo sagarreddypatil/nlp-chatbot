@@ -1,7 +1,6 @@
-import datetime
 import os
 import time
-from typing import NamedTuple, Optional, Tuple, List
+from typing import Optional
 import json
 
 
@@ -15,7 +14,7 @@ class ChatbotMessage:
 class Conversation(object):
     def __init__(self, id: str, logdir: Optional[str] = None):
         self.id = id
-        self.__queue: list(ChatbotMessage) = []
+        self.__queue: list[ChatbotMessage] = []
         self.start_offset = 0
         self.logdir = logdir
 
@@ -23,7 +22,7 @@ class Conversation(object):
         self.__queue.append(message)
         self.dump()
 
-    def get_last_message(self, sender: str = None) -> Tuple[int, ChatbotMessage]:
+    def get_last_message(self, sender: str = None) -> tuple[int, ChatbotMessage]:
         if sender is None:
             return self.__queue[-1]
 
@@ -34,7 +33,7 @@ class Conversation(object):
     def dequeue(self):
         self.start_offset += 1
 
-    def get_queue(self) -> List[ChatbotMessage]:
+    def get_queue(self) -> list[ChatbotMessage]:
         return self.__queue[self.start_offset :]
 
     def amend(self, idx: int, message: ChatbotMessage):

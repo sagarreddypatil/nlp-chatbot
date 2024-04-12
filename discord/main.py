@@ -2,8 +2,9 @@ import time
 import discord
 import argparse
 import shlex
-from chatbot.chatbot import ChatbotMessage, Conversation, Chatbot, BruhChatbot
+from chatbot.conversation import Conversation, ChatbotMessage
 from chatbot import transformer
+from chatbot.formatter import Formatter
 from random import random
 import numpy as np
 import logging
@@ -74,8 +75,9 @@ class NLPChatbot(discord.Client):
         super().__init__(*args, **kwargs)
         self.convos: dict[int, Conversation] = {}
         logger.info("Loading Model")
-        self.model: Chatbot = transformer.Transformer(name=name, preamble=preamble, settings=transformer.llama27b)
-        # self.model: Chatbot = BruhChatbot(name=name, preamble=preamble)
+
+        formatter = Formatter(preamble)
+        self.model = transformer.Transformer(settings=transformer.llama27b, formatter=formatter)
 
         logger.info("Model Loaded")
 
@@ -116,49 +118,23 @@ class NLPChatbot(discord.Client):
             await self.handle_chat(message)
             return
 
-    # async def generate_response(self, convo: Conversation) -> str:
-    #     return self.model.generate_response(convo)
-
     async def handle_chat(self, message: discord.Message):
         convo = self.convos[message.channel.id]
         channel: discord.TextChannel = message.channel
-
-        # message: discord.Message = await channel.send("Thinking...")
-
-        def update(response: str):
-            pass
-            # self.loop.create_task(message.edit(content=response))
 
         err = False
         final_response = ""
         async with channel.typing():
             try:
-                # final_response = await self.generate_response(convo)
-                final_response = self.model.generate_response(convo, update)
+                final_response = self.model.generate(convo)
             except Exception as exc:
                 logger.exception(exc)
                 err = True
-
-        # await message.delete()
 
         if err:
             await channel.send(embed=self.create_embed(self.user, title="Error", description="Internal error, better luck next message"))
         elif final_response:
             await channel.send(final_response)
-
-        # err = False
-        # async with channel.typing():
-        #     try:
-        #         response = await self.generate_response(convo)
-        #     except Exception as exc:
-        #         logger.exception(exc)
-        #         err = True
-
-        # if not err:
-        #     if response:
-        #         await channel.send(response)
-        # else:
-        #     await channel.send(embed=self.create_embed(self.user, title="Error", description="Internal error, better luck next message"))
 
     async def handle_cmd(self, message: discord.Message):
         content = shlex.split(message.clean_content)[1:]
@@ -199,7 +175,7 @@ class NLPChatbot(discord.Client):
                     message.author,
                     title=f"{'Gaslit ' if args.gaslight else ''}History",
                     description=convo.summary(),
-                    footer=f"The model can only remember approximately the last {self.model.model_max_length()} words.",
+                    footer=f"This model has a limited context length",
                 )
             )
 
